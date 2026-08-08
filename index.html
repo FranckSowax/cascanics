@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cascanics — Machines de nettoyage de casques de moto en libre-service</title>
+  <meta name="description" content="Scannez, choisissez votre cycle, récupérez un casque frais en quelques minutes. Cascanics distribue des stations de nettoyage de casques en libre-service : achat ou dépôt avec partage de revenus.">
+  <link rel="canonical" href="https://cascanics.com/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Cascanics — La station de soin pour casques.">
+  <meta property="og:description" content="Scannez, choisissez votre cycle, récupérez un casque frais en quelques minutes. Achat ou dépôt avec partage de revenus.">
+  <meta property="og:image" content="https://cascanics.com/frames/seg3/frame_108.webp">
+  <meta property="og:locale" content="fr_FR">
+
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- LCP : première frame du hero en image critique avant l'init canvas -->
+  <link rel="preload" as="image" href="frames/seg1/frame_001.webp" media="(min-width: 768px)">
+  <link rel="preload" as="image" href="frames/seg1/m/frame_001.webp" media="(max-width: 767px)">
+
+  <link rel="stylesheet" href="css/main.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "Cascanics",
+        "url": "https://cascanics.com/",
+        "slogan": "La station de soin pour casques.",
+        "description": "Distributeur français de machines de nettoyage de casques en libre-service pour les professionnels.",
+        "areaServed": "FR"
+      },
+      {
+        "@type": "Product",
+        "name": "Station Cascanics",
+        "brand": { "@type": "Brand", "name": "Cascanics" },
+        "description": "Machine de nettoyage de casques en libre-service : brume active 360°, traitement UV-C, séchage à air maîtrisé. Double caisson, paiement CB sans contact, pièces et billets, supervision à distance.",
+        "image": "https://cascanics.com/frames/seg3/frame_108.webp",
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock",
+          "offerCount": 2
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#contact">Aller au formulaire de contact</a>
+
+  <!-- Écran de chargement -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <img class="loader-logo" src="assets/logo-emblem.png" alt="" width="85" height="96">
+    <div class="wordmark">CASCANICS</div>
+    <div class="bar"><i id="loader-bar"></i></div>
+  </div>
+
+  <!-- Grain film global -->
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- SECTION 0 — NAVBAR -->
+  <header class="nav" id="nav">
+    <a class="nav-logo" href="#hero"><img src="assets/logo-emblem.png" alt="" width="32" height="36">CASCANICS</a>
+    <nav aria-label="Navigation principale">
+      <ul class="nav-links">
+        <li><a href="#orbit">La machine</a></li>
+        <li><a href="#cycle">Le cycle</a></li>
+        <li><a href="#offres">Devenir hôte</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-primary" href="#contact">Demander un devis</a>
+  </header>
+
+  <main id="main">
+
+    <!-- SECTION 1 — HERO SCRUB « THE REVEAL » (segment 1, pin 350vh) -->
+    <section class="scrub" id="hero" data-seg="1" data-pin="350" aria-label="Cascanics — la station de soin pour casques">
+      <picture>
+        <source media="(max-width: 767px)" srcset="frames/seg1/m/frame_001.webp">
+        <img class="poster" src="frames/seg1/frame_001.webp" alt="Motard de nuit en ville, néons reflétés sur la visière du casque" fetchpriority="high" decoding="async">
+      </picture>
+      <canvas aria-hidden="true"></canvas>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="vignette-boost" aria-hidden="true"></div>
+
+      <div class="stack">
+        <div class="ov ov-center hero-logo is-on" data-in="0" data-out="9">
+          <h1>CASCANICS</h1>
+          <p class="baseline">La station de soin pour casques.</p>
+        </div>
+
+        <div class="ov ov-bl ov-residus" data-in="30" data-out="42">
+          <p>Chaque trajet laisse quelque chose derrière lui.<br><strong>Sueur. Pollution. Bactéries.</strong></p>
+        </div>
+
+        <div class="ov ov-center ov-choc" data-in="45.5" data-out="52" data-boost="true">
+          <p>L’intérieur de votre casque est plus contaminé qu’une lunette de toilettes.</p>
+        </div>
+
+        <div class="ov ov-center ov-reponse" data-in="56" data-out="66">
+          <p>Voici la réponse.</p>
+        </div>
+
+        <div class="ov ov-center ov-reveal" data-in="70" data-out="82">
+          <p>Cascanics. Le nettoyage professionnel, en libre-service.</p>
+        </div>
+
+        <div class="ov ov-bc scroll-cue" data-in="86" data-out="100" data-stay="true">
+          <span class="arrow" aria-hidden="true"></span>
+          Découvrez le cycle
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 — INTERLUDE « LE PROBLÈME → LA SOLUTION » -->
+    <section class="static-section bg-acier" id="probleme" aria-label="Le problème et la solution">
+      <p class="section-label">Le constat</p>
+      <h2 class="section-title">Un problème universel. Presque aucune solution accessible.</h2>
+      <div class="stats-grid">
+        <div class="glass stat-card fade-in">
+          <div class="figure"><span class="count" data-count="2" data-prefix="+">0</span><span class="unit">Md</span></div>
+          <p>de porteurs de casques dans le monde — motards, cyclistes, skieurs, chantiers.</p>
+        </div>
+        <div class="glass stat-card fade-in">
+          <div class="figure"><span class="count" data-count="0">0</span></div>
+          <p>solution de nettoyage accessible au quotidien — jusqu’ici.</p>
+        </div>
+        <div class="glass stat-card fade-in">
+          <div class="figure"><span class="count" data-count="5">0</span><span class="unit">min</span></div>
+          <p>la durée d’un cycle complet, sans démontage.</p>
+        </div>
+      </div>
+      <p class="stats-note fade-in">Laver ses mousses à la main : 2 h, du démontage, et un risque d’abîmer le casque. Un cycle Cascanics : <strong>quelques minutes, automatique, sans contact avec l’eau.</strong></p>
+    </section>
+
+    <!-- SECTION 3 — SCRUB « THE CYCLE » (segment 2, pin 400vh) -->
+    <section class="scrub" id="cycle" data-seg="2" data-pin="400" aria-label="Le cycle de nettoyage en trois technologies">
+      <picture>
+        <source media="(max-width: 767px)" srcset="frames/seg2/m/frame_001.webp">
+        <img class="poster" src="frames/seg2/frame_001.webp" alt="Casque de moto suspendu dans la chambre de nettoyage de la machine" loading="lazy" decoding="async">
+      </picture>
+      <canvas aria-hidden="true"></canvas>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="tint" aria-hidden="true"></div>
+
+      <div class="stack">
+        <div class="ov ov-center ov-title" data-in="0.5" data-out="5">
+          <h2>Un cycle. Trois technologies.</h2>
+        </div>
+
+        <div class="ov glass cycle-card pos-right card-brume" data-in="7" data-stamp="28" data-out="31" data-fx-out="whip-left">
+          <p class="num">01 — BRUME ACTIVE 360°</p>
+          <h3>Une brume ultra-fine enveloppe l’intégralité du casque.</h3>
+          <p>Mousses, sangles, moindres recoins. Elle décolle les résidus de sueur et neutralise les odeurs, sans une goutte d’eau.</p>
+        </div>
+
+        <div class="ov glass cycle-card pos-left card-uv" data-in="34" data-stamp="56" data-out="59" data-fx-out="whip-right">
+          <p class="num">02 — TRAITEMENT UV-C</p>
+          <h3>Une lumière UV-C balaie l’intérieur du casque.</h3>
+          <p>Elle cible les bactéries responsables des odeurs, là où elles se logent : au cœur des mousses.</p>
+        </div>
+
+        <div class="ov glass cycle-card pos-right card-air" data-in="62" data-out="92">
+          <p class="num">03 — SÉCHAGE AIR MAÎTRISÉ</p>
+          <h3>Un flux d’air tempéré sèche les mousses en profondeur.</h3>
+          <p>Il fixe une fragrance légère, au choix. Le casque ressort sec, frais, prêt à enfiler.</p>
+        </div>
+
+        <div class="ov ov-bc ov-conclusion" data-in="95" data-out="100" data-stay="true">
+          <p>Sans eau. Sans démontage. Sans risque pour votre casque.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4 — INTERLUDE « POUR QUI ? » -->
+    <section class="static-section bg-carbone" id="pour-qui" aria-label="Pour qui">
+      <p class="section-label">Pour qui</p>
+      <h2 class="section-title">Un service pour les motards. Un revenu pour les professionnels.</h2>
+      <div class="audience-grid">
+        <div class="audience-card fade-in">
+          <h3>Motards &amp; sportifs</h3>
+          <p class="tagline">Le réflexe d’après-ride.</p>
+          <ul>
+            <li>Casques moto et scooter</li>
+            <li>Casques ski et snowboard</li>
+            <li>Casques vélo et VTT</li>
+            <li>Casques de chantier</li>
+          </ul>
+        </div>
+        <div class="audience-card fade-in">
+          <h3>Professionnels</h3>
+          <p class="tagline">Un service qui attire, fidélise et encaisse tout seul.</p>
+          <ul>
+            <li>Stations-service et aires d’autoroute</li>
+            <li>Concessions et accessoiristes moto</li>
+            <li>Loueurs et flottes de livraison</li>
+            <li>Salles de sport, stations de ski, centres de contrôle technique</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5 — SCRUB « THE ORBIT » (segment 3, pin 300vh) -->
+    <section class="scrub" id="orbit" data-seg="3" data-pin="300" aria-label="La machine Cascanics en détail">
+      <picture>
+        <source media="(max-width: 767px)" srcset="frames/seg3/m/frame_001.webp">
+        <img class="poster" src="frames/seg3/frame_001.webp" alt="Station Cascanics : machine à double caisson sous un spot, porte ouverte" loading="lazy" decoding="async">
+      </picture>
+      <canvas aria-hidden="true"></canvas>
+      <div class="vignette" aria-hidden="true"></div>
+
+      <div class="stack">
+        <div class="ov ov-center ov-title" data-in="1" data-out="11">
+          <h2>Conçue pour encaisser. Pensée pour durer.</h2>
+        </div>
+
+        <div class="ov spec-point sp-1" data-in="13" data-out="23">
+          <span class="dot" aria-hidden="true"></span><span class="line" aria-hidden="true"></span>
+          <span class="label">Double caisson<small>2 casques traités simultanément</small></span>
+        </div>
+        <div class="ov spec-point sp-2" data-in="24" data-out="34">
+          <span class="dot" aria-hidden="true"></span><span class="line" aria-hidden="true"></span>
+          <span class="label">Écran tactile<small>3 gestes : scannez, choisissez, récupérez</small></span>
+        </div>
+        <div class="ov spec-point sp-3" data-in="35" data-out="45">
+          <span class="dot" aria-hidden="true"></span><span class="line" aria-hidden="true"></span>
+          <span class="label">Paiement universel<small>CB sans contact, pièces, billets</small></span>
+        </div>
+        <div class="ov spec-point sp-4" data-in="46" data-out="56">
+          <span class="dot" aria-hidden="true"></span><span class="line" aria-hidden="true"></span>
+          <span class="label">Supervision à distance<small>CA, alertes, prix — en temps réel</small></span>
+        </div>
+        <div class="ov spec-point sp-5" data-in="57" data-out="68">
+          <span class="dot" aria-hidden="true"></span><span class="line" aria-hidden="true"></span>
+          <span class="label">Acier traité<small>Composants certifiés CE</small></span>
+        </div>
+
+        <div class="ov ov-watermark" data-in="70" data-out="100" data-stay="true" aria-hidden="true">CASCANICS</div>
+
+        <div class="ov glass orbit-cta" data-in="77" data-out="100" data-stay="true" data-fx-in="slide-right">
+          <h3>Installez Cascanics chez vous.</h3>
+          <a class="btn btn-primary" href="#contact" data-projet="achat">Demander le dossier &amp; les prix</a>
+          <a class="btn" href="#contact" data-projet="depot">Vérifier l’éligibilité de mon site</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6 — DOUBLE CTA -->
+    <section class="static-section bg-acier" id="offres" aria-label="Nos deux offres">
+      <p class="section-label">Deux façons de démarrer</p>
+      <h2 class="section-title">Exploitez votre machine, ou hébergez la nôtre.</h2>
+      <div class="cta-grid">
+        <div class="cta-card fade-in">
+          <p class="kicker">Achat</p>
+          <h3>J’achète ma machine</h3>
+          <p>Pour les professionnels qui veulent l’exploitation complète. Investissement contenu, revenus dès la première semaine, ROI typique en quelques mois.</p>
+          <a class="btn btn-primary" href="#contact" data-projet="achat">Demander le dossier &amp; les prix</a>
+        </div>
+        <div class="cta-card fade-in">
+          <p class="kicker">Dépôt</p>
+          <h3>J’héberge une machine</h3>
+          <p>Le modèle dépôt avec partage de revenus. Zéro investissement. Nous installons, vous encaissez votre part.</p>
+          <a class="btn btn-primary" href="#contact" data-projet="depot">Vérifier l’éligibilité de mon site</a>
+        </div>
+      </div>
+      <div class="reassurance fade-in">
+        <span>Machine certifiée CE</span>
+        <span>Liquide conforme aux exigences européennes</span>
+        <span>SAV &amp; pièces en France</span>
+        <span>Garantie 12 mois</span>
+      </div>
+    </section>
+
+    <!-- SECTION 7 — FORMULAIRE -->
+    <section class="static-section bg-carbone" id="contact" aria-label="Contact et devis">
+      <div class="form-wrap">
+        <p class="section-label">Contact</p>
+        <h2 class="section-title">Parlons de votre site.</h2>
+        <!-- Remplacer VOTRE_ID par l'identifiant Formspree du compte Cascanics -->
+        <form id="devis-form" action="https://formspree.io/f/VOTRE_ID" method="POST" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="f-nom">Nom</label>
+              <input id="f-nom" name="nom" type="text" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="f-societe">Société</label>
+              <input id="f-societe" name="societe" type="text" autocomplete="organization" required>
+            </div>
+            <div class="field">
+              <label for="f-type">Type de site</label>
+              <select id="f-type" name="type_de_site" required>
+                <option value="" selected disabled>Sélectionnez…</option>
+                <option>Station-service</option>
+                <option>Concession moto</option>
+                <option>Salle de sport</option>
+                <option>Loueur</option>
+                <option>Autre</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-cp">Code postal</label>
+              <input id="f-cp" name="code_postal" type="text" inputmode="numeric" pattern="[0-9]{5}" autocomplete="postal-code" required>
+            </div>
+            <div class="field">
+              <label for="f-tel">Téléphone</label>
+              <input id="f-tel" name="telephone" type="tel" autocomplete="tel" required>
+            </div>
+            <div class="field">
+              <label for="f-email">Email</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="field full">
+              <label for="f-projet">Votre projet</label>
+              <select id="f-projet" name="projet" required>
+                <option value="" selected disabled>Sélectionnez…</option>
+                <option value="achat">Achat d’une machine</option>
+                <option value="depot">Dépôt — j’héberge une machine</option>
+                <option value="les-deux">Les deux m’intéressent</option>
+              </select>
+            </div>
+            <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <label class="rgpd">
+              <input type="checkbox" name="rgpd" required>
+              <span>J’accepte que mes données soient utilisées pour traiter ma demande, conformément à la politique de confidentialité de Cascanics. Aucune revente, aucun spam.</span>
+            </label>
+          </div>
+          <button class="btn btn-primary" type="submit">Envoyer ma demande</button>
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© <span id="year">2026</span> Cascanics — La station de soin pour casques.</span>
+    <nav aria-label="Liens de bas de page">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="https://www.linkedin.com/company/cascanics" rel="noopener" target="_blank">LinkedIn</a>
+      <a href="https://www.instagram.com/cascanics" rel="noopener" target="_blank">Instagram</a>
+    </nav>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

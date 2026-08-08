@@ -1,0 +1,6 @@
+{
+  "fps": 10,
+  "seg1": { "desktop": 150, "mobile": 150 },
+  "seg2": { "desktop": 150, "mobile": 150 },
+  "seg3": { "desktop": 150, "mobile": 150 }
+}

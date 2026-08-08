@@ -1,0 +1,7 @@
+# Sources vidéo (~310 Mo) — les frames extraites suffisent au site.
+# Ré-extraction : scripts/extract.sh depuis les MP4 conservés en local.
+*.mp4
+
+# Fichiers système / outillage local
+.DS_Store
+.claude/
