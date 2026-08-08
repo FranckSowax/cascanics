@@ -1,0 +1,11 @@
+.git
+.claude
+*.mp4
+*.psd
+scripts
+README.md
+RECETTE.md
+netlify.toml
+Dockerfile
+.dockerignore
+.gitignore
