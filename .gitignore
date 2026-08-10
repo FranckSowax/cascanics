@@ -5,3 +5,6 @@
 # Fichiers système / outillage local
 .DS_Store
 .claude/
+
+# Livrables PDF generes
+*.pdf

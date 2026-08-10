@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cascanics — Dossier de présentation &amp; bon de commande</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --marine: #12365A;
+    --bleu: #2E6DB4;
+    --cyan: #7FD8E8;
+    --ambre: #F0A45B;
+    --vert: #2FA872;
+    --encre: #16191E;
+    --gris: #5A6472;
+    --ligne: #D8DEE6;
+    --fond: #F4F6F8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #E9ECF0; }
+  body { font-family: "Inter", system-ui, sans-serif; color: var(--encre); font-size: 10.5pt; line-height: 1.5; }
+  h1, h2, h3, h4 { font-family: "Space Grotesk", sans-serif; color: var(--marine); line-height: 1.15; }
+
+  .page {
+    width: 210mm; min-height: 297mm;
+    margin: 24px auto; padding: 16mm 15mm 14mm;
+    background: #fff; position: relative;
+    box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    display: flex; flex-direction: column;
+  }
+
+  /* ---------- impression ---------- */
+  @page { size: A4; margin: 0; }
+  @media print {
+    html, body { background: #fff; }
+    .page { margin: 0; box-shadow: none; width: 210mm; height: 297mm; min-height: 0; page-break-after: always; overflow: hidden; }
+    .page:last-child { page-break-after: auto; }
+    .no-print { display: none !important; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  .print-hint {
+    max-width: 210mm; margin: 20px auto 0; padding: 12px 18px;
+    background: #fff; border: 1px solid var(--ligne); border-radius: 10px;
+    font-size: 9.5pt; color: var(--gris); display: flex; gap: 14px; align-items: center; justify-content: space-between;
+  }
+  .print-hint button {
+    font: 700 10pt "Space Grotesk", sans-serif; color: #fff; background: var(--bleu);
+    border: 0; border-radius: 8px; padding: 10px 18px; cursor: pointer;
+  }
+
+  /* ---------- entête / pied ---------- */
+  .doc-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 4mm; border-bottom: 2px solid var(--marine); margin-bottom: 6mm; }
+  .doc-header img { height: 15mm; width: auto; }
+  .doc-header .ref { text-align: right; font-size: 8.5pt; color: var(--gris); }
+  .doc-footer { margin-top: auto; padding-top: 5mm; border-top: 1px solid var(--ligne); display: flex; justify-content: space-between; font-size: 8pt; color: var(--gris); }
+
+  .kicker { font: 700 9pt "Space Grotesk", sans-serif; letter-spacing: .22em; text-transform: uppercase; color: var(--bleu); margin-bottom: 3mm; }
+
+  /* ---------- page 1 : couverture ---------- */
+  .cover { justify-content: flex-start; }
+  .cover-logo { display: flex; justify-content: center; margin: 10mm 0 8mm; }
+  .cover-logo img { height: 34mm; width: auto; }
+  .cover h1 { font-size: 26pt; text-align: center; margin-bottom: 4mm; }
+  .cover .baseline { text-align: center; font-size: 13pt; color: var(--gris); margin-bottom: 10mm; }
+  .cover-visual { border-radius: 10px; overflow: hidden; margin-bottom: 8mm; }
+  .cover-visual img { width: 100%; height: 68mm; object-fit: cover; object-position: center 42%; display: block; }
+  .cover-pitch { text-align: center; font-size: 11.5pt; max-width: 150mm; margin: 0 auto 8mm; }
+  .cover-badges { display: flex; justify-content: center; gap: 8mm; flex-wrap: wrap; font-size: 9pt; font-weight: 600; color: var(--marine); }
+  .cover-badges span { border: 1px solid var(--ligne); border-radius: 999px; padding: 2.2mm 5mm; background: var(--fond); }
+
+  .promo-banner {
+    margin-top: 8mm; border-radius: 10px; padding: 6mm 8mm;
+    background: var(--marine); color: #fff;
+    display: flex; align-items: center; justify-content: space-between; gap: 6mm;
+  }
+  .promo-banner .txt { font: 700 13pt "Space Grotesk", sans-serif; color: #fff; }
+  .promo-banner .txt small { display: block; font: 400 9pt "Inter", sans-serif; opacity: .85; margin-top: 1.5mm; }
+  .promo-banner .prix { text-align: right; white-space: nowrap; }
+  .promo-banner .prix .old { text-decoration: line-through; opacity: .65; font-size: 11pt; }
+  .promo-banner .prix .new { font: 700 21pt "Space Grotesk", sans-serif; color: var(--ambre); }
+  .promo-banner .prix .ht { font-size: 8.5pt; opacity: .85; }
+
+  /* ---------- page 2 : arguments ---------- */
+  h2.section { font-size: 14pt; margin: 0 0 3.5mm; }
+  .bloc { margin-bottom: 5mm; }
+
+  .stats3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+  .stats3 > div { background: var(--fond); border-radius: 8px; padding: 4mm; }
+  .stats3 .n { font: 700 17pt "Space Grotesk", sans-serif; color: var(--marine); }
+  .stats3 .n em { font-style: normal; font-size: 10pt; color: var(--bleu); }
+  .stats3 p { font-size: 8.5pt; color: var(--gris); margin-top: 1mm; }
+
+  .cycle3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+  .cycle3 figure { border-radius: 8px; overflow: hidden; border: 1px solid var(--ligne); }
+  .cycle3 img { width: 100%; height: 22mm; object-fit: cover; display: block; }
+  .cycle3 figcaption { padding: 3mm 3.5mm 3.5mm; }
+  .cycle3 .t { font: 700 9.5pt "Space Grotesk", sans-serif; margin-bottom: 1mm; }
+  .c-brume .t { color: #2E9DB4; } .c-uv .t { color: var(--bleu); } .c-air .t { color: #C97A2B; }
+  .cycle3 p { font-size: 8.4pt; color: var(--gris); }
+
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  ul.checks { list-style: none; }
+  ul.checks li { position: relative; padding-left: 6mm; margin-bottom: 1.4mm; font-size: 9pt; }
+  ul.checks li::before {
+    content: ""; position: absolute; left: 0; top: 2.4mm;
+    width: 3mm; height: 1.6mm;
+    border-left: 2.2px solid var(--vert); border-bottom: 2.2px solid var(--vert);
+    transform: rotate(-45deg);
+  }
+  ul.checks strong { color: var(--marine); }
+
+  .etapes { counter-reset: step; }
+  .etapes li { list-style: none; position: relative; padding-left: 9mm; margin-bottom: 2mm; font-size: 9pt; }
+  .etapes li::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 6mm; height: 6mm; border-radius: 50%;
+    background: var(--marine); color: #fff;
+    font: 700 9pt "Space Grotesk", sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .etapes strong { color: var(--marine); }
+
+  .reassure { display: flex; flex-wrap: wrap; gap: 2.5mm 6mm; padding: 3.5mm 5mm; border: 1px solid #BFE5D2; background: #F0FAF5; border-radius: 8px; font-size: 8.8pt; font-weight: 600; color: var(--marine); }
+
+  /* ---------- page 3 : bon de commande ---------- */
+  .bc-title { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5mm; }
+  .bc-title h2 { font-size: 17pt; }
+  .bc-title .num { font-size: 9pt; color: var(--gris); }
+
+  table.offre { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
+  table.offre th { font: 700 8.5pt "Space Grotesk", sans-serif; text-transform: uppercase; letter-spacing: .08em; color: #fff; background: var(--marine); padding: 2.8mm 4mm; text-align: left; }
+  table.offre th:last-child, table.offre td:last-child { text-align: right; }
+  table.offre td { padding: 2.4mm 4mm; border-bottom: 1px solid var(--ligne); font-size: 9.5pt; vertical-align: top; }
+  table.offre .desc small { display: block; color: var(--gris); font-size: 8.3pt; margin-top: .8mm; }
+  table.offre .barre { text-decoration: line-through; color: var(--gris); }
+  table.offre .remise { color: var(--vert); font-weight: 600; }
+  table.offre tfoot td { border: 0; padding: 2mm 4mm; font-size: 9.5pt; }
+  table.offre tfoot .total td { font: 700 12pt "Space Grotesk", sans-serif; color: var(--marine); border-top: 2px solid var(--marine); padding-top: 2.6mm; }
+
+  .promo-note { border: 1.5px dashed var(--ambre); background: #FEF6EC; border-radius: 8px; padding: 2.6mm 4.5mm; font-size: 8.8pt; margin-bottom: 4mm; }
+  .promo-note strong { color: #B4691E; }
+
+  .bc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 6mm; margin-bottom: 4mm; }
+  .bc-field { font-size: 8.2pt; color: var(--gris); }
+  .bc-field .line { border-bottom: 1px solid var(--encre); height: 6.5mm; margin-top: 1mm; }
+  .bc-field.full { grid-column: 1 / -1; }
+
+  .bc-options { display: flex; gap: 3mm 8mm; font-size: 9pt; margin-bottom: 4mm; flex-wrap: wrap; }
+  .case { display: inline-flex; align-items: center; gap: 2.5mm; }
+  .case i { width: 4mm; height: 4mm; border: 1.5px solid var(--encre); border-radius: 1mm; display: inline-block; }
+
+  .sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .sign-box { border: 1px solid var(--ligne); border-radius: 8px; padding: 3.5mm 4.5mm; min-height: 24mm; font-size: 8.4pt; color: var(--gris); }
+  .sign-box b { color: var(--encre); display: block; margin-bottom: 1mm; font-size: 9pt; }
+
+  .cgv { font-size: 7pt; color: var(--gris); margin-top: 3mm; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="print-hint no-print">
+  <span>Aperçu A4 — pour générer le PDF : Imprimer → Destination « Enregistrer en PDF » → Marges « Aucune » → cocher « Graphiques d'arrière-plan ».</span>
+  <button onclick="window.print()">Imprimer / PDF</button>
+</div>
+
+<!-- ============================ PAGE 1 — COUVERTURE ============================ -->
+<section class="page cover">
+  <div class="cover-logo"><img src="assets/logo-full.png" alt="Cascanics"></div>
+  <h1>La station de soin pour casques.</h1>
+  <p class="baseline">Nettoyage professionnel de casques en libre-service — dossier de présentation</p>
+
+  <div class="cover-visual"><img src="frames/seg3/frame_145.webp" alt="Station Cascanics à double caisson sous un spot"></div>
+
+  <p class="cover-pitch">Une machine autonome qui nettoie, traite et parfume les casques en quelques minutes — et qui encaisse toute seule. Un service que vos clients ne trouvent nulle part ailleurs, un revenu récurrent pour votre site.</p>
+
+  <div class="cover-badges">
+    <span>Certifiée CE</span>
+    <span>Sans eau, sans démontage</span>
+    <span>Encaissement automatique</span>
+    <span>SAV &amp; pièces en France</span>
+  </div>
+
+  <div class="promo-banner">
+    <div class="txt">
+      Offre de lancement — machine + installation
+      <small>Valable uniquement pour tout bon de commande signé ce jour (page 3).</small>
+    </div>
+    <div class="prix">
+      <div class="old">5 500 € HT</div>
+      <div class="new">4 800 € HT</div>
+      <div class="ht">soit 700 € d'économie — TVA 20 % en sus</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <span>Cascanics — contact@cascanics.com — cascanics.com</span>
+    <span>Page 1/3</span>
+  </div>
+</section>
+
+<!-- ============================ PAGE 2 — ARGUMENTAIRE ============================ -->
+<section class="page">
+  <div class="doc-header">
+    <img src="assets/logo-full.png" alt="Cascanics">
+    <div class="ref">Dossier de présentation<br>Date : ____ / ____ / 20____</div>
+  </div>
+
+  <div class="bloc">
+    <p class="kicker">Le constat</p>
+    <h2 class="section">Un problème universel, presque aucune solution accessible.</h2>
+    <div class="stats3">
+      <div><div class="n">+2 <em>Md</em></div><p>de porteurs de casques dans le monde — moto, vélo, ski, chantier. L'intérieur d'un casque porté quotidiennement est plus contaminé qu'une lunette de toilettes : sueur, sébum, pollution s'accumulent dans les mousses.</p></div>
+      <div><div class="n">2 h</div><p>pour laver ses mousses à la main : démontage, séchage, risque d'abîmer le casque. Résultat : personne ne le fait.</p></div>
+      <div><div class="n">5 <em>min</em></div><p>la durée d'un cycle Cascanics, automatique, sans démontage et sans contact avec l'eau.</p></div>
+    </div>
+  </div>
+
+  <div class="bloc">
+    <p class="kicker">La technologie</p>
+    <h2 class="section">Un cycle. Trois technologies.</h2>
+    <div class="cycle3">
+      <figure class="c-brume">
+        <img src="frames/seg2/frame_040.webp" alt="Brume active enveloppant un casque">
+        <figcaption><div class="t">01 — Brume active 360°</div><p>Une brume ultra-fine enveloppe tout le casque — mousses, sangles, recoins. Elle décolle les résidus de sueur et neutralise les odeurs, sans une goutte d'eau.</p></figcaption>
+      </figure>
+      <figure class="c-uv">
+        <img src="frames/seg2/frame_070.webp" alt="Traitement UV-C de l'intérieur du casque">
+        <figcaption><div class="t">02 — Traitement UV-C</div><p>Une lumière UV-C balaie l'intérieur du casque et cible les bactéries responsables des odeurs, au cœur des mousses.</p></figcaption>
+      </figure>
+      <figure class="c-air">
+        <img src="frames/seg2/frame_120.webp" alt="Séchage à air maîtrisé">
+        <figcaption><div class="t">03 — Séchage air maîtrisé</div><p>Un flux d'air tempéré sèche en profondeur et fixe une fragrance légère, au choix. Le casque ressort sec, frais, prêt à enfiler.</p></figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="bloc cols2">
+    <div>
+      <p class="kicker">Pourquoi Cascanics</p>
+      <ul class="checks">
+        <li><strong>Double caisson</strong> — 2 casques traités simultanément (duos, groupes, flux station-service).</li>
+        <li><strong>Paiement universel</strong> — CB sans contact, pièces et billets : aucun client perdu.</li>
+        <li><strong>Supervision à distance</strong> — CA par machine, alertes et prix pilotés depuis votre téléphone.</li>
+        <li><strong>Multi-casques</strong> — moto, scooter, ski, vélo, chantier : le marché ne se limite pas aux motards.</li>
+        <li><strong>Parcours en 3 gestes</strong> — scannez, choisissez votre cycle, récupérez. Aucun personnel requis.</li>
+      </ul>
+    </div>
+    <div>
+      <p class="kicker">Mise en place</p>
+      <ol class="etapes">
+        <li><strong>Commande</strong> — bon de commande signé, acompte de 30 %.</li>
+        <li><strong>Préparation du site</strong> — moins d'1 m² au sol, une prise 230 V standard, aucune arrivée d'eau. Intérieur ou extérieur abrité.</li>
+        <li><strong>Installation &amp; formation</strong> — livraison, mise en service et prise en main par nos techniciens (incluses dans l'offre).</li>
+        <li><strong>Exploitation</strong> — la machine encaisse seule ; vous suivez le CA en temps réel. Revenus dès la première semaine, ROI typique en quelques mois.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="reassure">
+    <span>✓ Machine certifiée CE</span>
+    <span>✓ Liquide conforme aux exigences européennes</span>
+    <span>✓ SAV &amp; pièces détachées en France</span>
+    <span>✓ Garantie 12 mois</span>
+  </div>
+
+  <div class="doc-footer">
+    <span>Cascanics — contact@cascanics.com — cascanics.com</span>
+    <span>Page 2/3</span>
+  </div>
+</section>
+
+<!-- ============================ PAGE 3 — BON DE COMMANDE ============================ -->
+<section class="page">
+  <div class="doc-header">
+    <img src="assets/logo-full.png" alt="Cascanics">
+    <div class="ref">BC n° : ______________<br>Date : ____ / ____ / 20____</div>
+  </div>
+
+  <div class="bc-title">
+    <h2>Bon de commande</h2>
+    <span class="num">Offre de lancement — validité : jour de la présentation</span>
+  </div>
+
+  <table class="offre">
+    <thead>
+      <tr><th>Désignation</th><th style="width:18mm">Qté</th><th style="width:30mm">Montant HT</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="desc">Station Cascanics — double caisson
+          <small>Brume active 360° · traitement UV-C · séchage air maîtrisé · écran tactile · terminal CB sans contact + pièces/billets · supervision à distance · garantie 12 mois</small>
+        </td>
+        <td>1</td>
+        <td><span class="barre">5 000,00 €</span></td>
+      </tr>
+      <tr>
+        <td class="desc">Installation, mise en service &amp; formation
+          <small>Livraison, raccordement, paramétrage des cycles et des prix, prise en main de la supervision</small>
+        </td>
+        <td>1</td>
+        <td><span class="barre">500,00 €</span></td>
+      </tr>
+      <tr>
+        <td class="desc remise">Remise « offre de lancement » — bon de commande signé ce jour</td>
+        <td></td>
+        <td class="remise">− 700,00 €</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr><td colspan="2">Total HT après remise</td><td style="text-align:right"><b>4 800,00 €</b></td></tr>
+      <tr><td colspan="2">TVA 20 %</td><td style="text-align:right">960,00 €</td></tr>
+      <tr class="total"><td colspan="2">Total TTC</td><td style="text-align:right">5 760,00 €</td></tr>
+    </tfoot>
+  </table>
+
+  <div class="promo-note">
+    <strong>Offre promotionnelle :</strong> le tarif de 4 800 € HT (au lieu de 5 500 € HT) s'applique exclusivement aux bons de commande signés le jour de la présentation. Au-delà, le tarif catalogue de 5 500 € HT s'applique.
+  </div>
+
+  <div class="bc-grid">
+    <div class="bc-field">Société / Raison sociale<div class="line"></div></div>
+    <div class="bc-field">SIRET<div class="line"></div></div>
+    <div class="bc-field">Nom et qualité du signataire<div class="line"></div></div>
+    <div class="bc-field">Téléphone<div class="line"></div></div>
+    <div class="bc-field">Email<div class="line"></div></div>
+    <div class="bc-field">Type de site (station-service, concession, salle de sport…)<div class="line"></div></div>
+    <div class="bc-field full">Adresse d'installation<div class="line"></div></div>
+  </div>
+
+  <div class="bc-options">
+    <span><b>Règlement :</b></span>
+    <span class="case"><i></i> Acompte 30 % à la commande (1 728 € TTC), solde à l'installation</span>
+    <span class="case"><i></i> Comptant à la commande</span>
+    <span class="case"><i></i> Financement / leasing (nous consulter)</span>
+  </div>
+
+  <div class="sign-grid">
+    <div class="sign-box">
+      <b>Le Client</b>
+      Date, mention « Bon pour accord », signature et cachet :
+    </div>
+    <div class="sign-box">
+      <b>Cascanics</b>
+      Date et signature :
+    </div>
+  </div>
+
+  <p class="cgv">Conditions : matériel garanti 12 mois pièces et main-d'œuvre (hors consommables et usure normale). Délai indicatif de livraison et d'installation : 4 à 6 semaines à compter de l'encaissement de l'acompte. Le site d'accueil fournit une alimentation 230 V et un emplacement conforme aux prérequis communiqués. Réserve de propriété jusqu'au paiement intégral. Les consommables (liquide de cycle, fragrances) sont disponibles auprès de Cascanics. Machine certifiée CE, liquide conforme aux exigences européennes. Données du présent bon utilisées uniquement pour le traitement de la commande (RGPD — droit d'accès et de rectification : contact@cascanics.com).</p>
+
+  <div class="doc-footer">
+    <span>Cascanics — contact@cascanics.com — cascanics.com</span>
+    <span>Page 3/3</span>
+  </div>
+</section>
+
+</body>
+</html>
