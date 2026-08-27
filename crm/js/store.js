@@ -225,6 +225,107 @@ export async function annulerCommande(cmdId) {
   cmd.historique = historique;
 }
 
+/* ---------- Import de prospects (JSON de recherche) ---------- */
+
+const sansAccent = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+const cle = (entreprise, ville) => sansAccent(entreprise).replace(/[^a-z0-9]/g, "") + "|" + sansAccent(ville).replace(/[^a-z0-9]/g, "");
+
+/* Ramène un libellé libre vers un type du CRM. */
+export function normaliserType(valeur) {
+  const v = sansAccent(valeur).replace(/[-_/]/g, " ").replace(/\s+/g, " ");
+  const exact = TYPES_PROSPECT.find((t) => sansAccent(t).replace(/[-_/]/g, " ").replace(/\s+/g, " ") === v);
+  if (exact) return exact;
+  if (!v) return "Autre";
+  const a = (...mots) => mots.some((m) => v.includes(m));
+  if (a("controle technique", "ct auto")) return "Centre de contrôle technique";
+  if (a("ski", "montagne", "station de ski")) return "Station de ski";
+  if (a("sport", "gym", "fitness", "musculation")) return "Salle de sport";
+  if (a("autoroute", "aire de")) return "Aire d'autoroute";
+  if (a("loueur", "location", "flotte", "livraison", "coursier")) return "Loueur / flotte";
+  if (a("station service", "station essence", "carburant", "essence", "petrole")) return "Station-service";
+  if (a("accessoir", "equipement", "equipementier", "piece")) return "Accessoiriste moto";
+  if (a("concession", "concessionnaire", "garage", "moto", "scooter", "deux roues")) return "Concession moto";
+  return "Autre";
+}
+
+/* Analyse le JSON collé par l'admin. Fonction pure : ne touche ni au réseau ni au cache.
+   Renvoie les lignes prêtes à insérer, les doublons et les rejets (avec la raison). */
+export function analyserImport(texte, { commercialParDefaut, commerciaux, existants }) {
+  let brut;
+  try {
+    brut = JSON.parse(texte);
+  } catch (e) {
+    // Tolère un bloc ```json … ``` copié tel quel depuis une conversation.
+    const bloc = String(texte).match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (!bloc) return { erreurGlobale: "JSON invalide : " + e.message, valides: [], doublons: [], rejets: [] };
+    try { brut = JSON.parse(bloc[1]); }
+    catch (e2) { return { erreurGlobale: "JSON invalide : " + e2.message, valides: [], doublons: [], rejets: [] }; }
+  }
+  const liste = Array.isArray(brut) ? brut : Array.isArray(brut?.prospects) ? brut.prospects : null;
+  if (!liste) return { erreurGlobale: "Format attendu : un tableau, ou un objet avec une clé « prospects ».", valides: [], doublons: [], rejets: [] };
+
+  const vus = new Set(existants.map((p) => cle(p.entreprise, p.ville)));
+  const valides = [], doublons = [], rejets = [];
+
+  liste.forEach((item, i) => {
+    const rang = i + 1;
+    if (!item || typeof item !== "object") { rejets.push({ rang, libelle: "entrée " + rang, raison: "n'est pas un objet" }); return; }
+    const entreprise = String(item.entreprise ?? item.nom ?? "").trim();
+    if (!entreprise) { rejets.push({ rang, libelle: "entrée " + rang, raison: "nom d'entreprise manquant" }); return; }
+    const ville = String(item.ville ?? "").trim();
+    const k = cle(entreprise, ville);
+    if (vus.has(k)) { doublons.push({ rang, libelle: entreprise + (ville ? " — " + ville : "") }); return; }
+    vus.add(k);
+
+    // Un e-mail ou un nom dans « commercial » permet de répartir un lot entre plusieurs zones.
+    let commercialId = commercialParDefaut;
+    const cible = String(item.commercial ?? "").trim();
+    if (cible) {
+      const u = commerciaux.find((u) => sansAccent(u.email) === sansAccent(cible) || sansAccent(u.nom) === sansAccent(cible));
+      if (u) commercialId = u.id;
+      else { rejets.push({ rang, libelle: entreprise, raison: "commercial « " + cible + " » inconnu" }); return; }
+    }
+    if (!commercialId) { rejets.push({ rang, libelle: entreprise, raison: "aucun commercial destinataire" }); return; }
+
+    // notes accepte une phrase, une liste de phrases, ou le format interne [{d,t}].
+    const n = item.notes ?? item.note ?? "";
+    const textes = (Array.isArray(n) ? n : [n])
+      .map((x) => (x && typeof x === "object" ? x.t : x))
+      .map((x) => String(x ?? "").trim())
+      .filter(Boolean);
+    const maintenant = new Date().toISOString();
+
+    valides.push({
+      commercialId,
+      entreprise: entreprise.slice(0, 160),
+      type: normaliserType(item.type),
+      ville: String(item.ville ?? "").trim().slice(0, 120),
+      adresse: String(item.adresse ?? "").trim().slice(0, 240),
+      contact: String(item.contact ?? "").trim().slice(0, 120),
+      tel: String(item.tel ?? item.telephone ?? "").trim().slice(0, 40),
+      email: String(item.email ?? "").trim().slice(0, 160),
+      notes: textes.map((t) => ({ d: maintenant, t })),
+    });
+  });
+
+  return { erreurGlobale: null, valides, doublons, rejets, zone: brut?.zone || "" };
+}
+
+export async function importerProspects(lignes) {
+  if (!lignes.length) return [];
+  const { data, error } = await supa.from("prospects").insert(
+    lignes.map((l) => ({
+      commercial_id: l.commercialId, entreprise: l.entreprise, type: l.type,
+      ville: l.ville, adresse: l.adresse, contact: l.contact, tel: l.tel,
+      email: l.email, notes: l.notes, source: "proposition_admin",
+    }))
+  ).select();
+  if (error) fail(error, "Import des prospects");
+  const js = data.map(p2js);
+  load().prospects.push(...js);
+  return js;
+}
+
 /* ---------- Mutations : propositions ---------- */
 export async function addProposition(pr) {
   const { data, error } = await supa.from("propositions").insert({

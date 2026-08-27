@@ -69,6 +69,44 @@
     </form>
   </dialog>
 
+  <!-- Modale import JSON -->
+  <dialog id="dlg-import">
+    <h2>Importer des prospects</h2>
+    <p class="d-sub">Collez le résultat JSON de votre recherche. Les établissements sont ajoutés
+      au portefeuille du commercial, au statut « À visiter ».</p>
+
+    <div class="import-tools">
+      <button class="btn sm" type="button" id="i-prompt">Copier le prompt de recherche</button>
+      <button class="btn sm ghost" type="button" id="i-file-btn">Charger un fichier .json</button>
+      <input id="i-file" type="file" accept=".json,application/json,text/plain" hidden />
+    </div>
+
+    <form id="form-import" method="dialog">
+      <div class="f-row">
+        <div>
+          <label class="f" for="i-com">Commercial destinataire *</label>
+          <select id="i-com" required></select>
+        </div>
+        <div>
+          <label class="f" for="i-zone">Zone recherchée</label>
+          <input id="i-zone" placeholder="Ex. Nouvelle-Aquitaine" />
+        </div>
+      </div>
+      <p class="hint">Une entrée peut viser un autre commercial via un champ « commercial » (e-mail ou nom).</p>
+
+      <label class="f" for="i-json">JSON des prospects</label>
+      <textarea id="i-json" rows="8" spellcheck="false"
+        placeholder='{ "zone": "Nouvelle-Aquitaine", "prospects": [ { "entreprise": "Moto Expert Bordeaux", "type": "Concession moto", "ville": "Bordeaux" } ] }'></textarea>
+
+      <div id="i-apercu" class="apercu"></div>
+
+      <div class="d-actions">
+        <button class="btn ghost" value="cancel" formnovalidate>Annuler</button>
+        <button class="btn primary" id="i-go" value="ok" disabled>Importer</button>
+      </div>
+    </form>
+  </dialog>
+
   <script type="module" src="js/admin.js"></script>
 </body>
 </html>

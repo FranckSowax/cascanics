@@ -35,8 +35,29 @@ Règles :
 |---|---|
 | `index.html` | Connexion e-mail / mot de passe |
 | `commercial.html` | Tableau de bord (CA, commission, KPIs), prospection, commandes, propositions reçues |
-| `admin.html` | Vue globale, validation des étapes, équipe (**création des comptes commerciaux**), propositions de zones, réglages |
+| `admin.html` | Vue globale, validation des étapes, équipe (**création des comptes commerciaux**), prospection (**import JSON**), réglages |
 | `bon-de-commande.html?cmd=ID` | BC imprimable A4 (Imprimer/PDF) — envoi e-mail via `mailto:` depuis le détail de commande |
+
+## Alimenter la prospection (admin → commerciaux)
+
+L'admin cherche les établissements à démarcher, puis les injecte en masse dans le CRM :
+
+1. Onglet **Prospection** → « Importer des prospects (JSON) ».
+2. Choisir le commercial destinataire et la zone, puis **« Copier le prompt de recherche »**.
+3. Coller ce prompt dans Cowork (ou tout assistant avec accès web) → il renvoie un JSON.
+4. Coller le JSON (ou charger le fichier `.json`) : l'aperçu annonce en direct combien
+   d'entrées seront importées, combien sont déjà en base et combien sont rejetées, avec la raison.
+5. « Importer » : les prospects arrivent chez le commercial au statut **À visiter**,
+   marqués « Importé ».
+
+Format accepté — un objet `{ "zone": …, "prospects": [ … ] }`, un tableau brut, ou un bloc
+` ```json ` copié tel quel. Par entrée : `entreprise` (seul champ obligatoire), `type`, `ville`,
+`adresse`, `contact`, `tel`, `email`, `notes` (texte ou liste), et `commercial` (e-mail ou nom)
+pour répartir un même lot entre plusieurs commerciaux. Le `type` est normalisé automatiquement
+(« accessoiriste » → « Accessoiriste moto ») et retombe sur « Autre » si non reconnu.
+Les doublons sont détectés sur entreprise + ville, sans tenir compte de la casse ni des accents.
+
+Le texte du prompt vit dans `js/prompt-prospection.js` (source unique, lue par le bouton).
 
 ## Architecture
 

@@ -210,6 +210,26 @@ dialog h2 { font-size: 17px; margin-bottom: 6px; }
 dialog .d-sub { font-size: 13px; color: var(--texte-2); margin-bottom: 8px; }
 .d-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
+/* ---------- Import JSON ---------- */
+.import-tools { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 4px; }
+dialog textarea#i-json {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px; line-height: 1.5; resize: vertical;
+}
+.apercu { margin-top: 12px; font-size: 12.5px; }
+.apercu:empty { display: none; }
+.apercu .ap-line { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; }
+.apercu .ap-err {
+  color: var(--rouge); background: rgba(232,106,106,0.08);
+  border: 1px solid rgba(232,106,106,0.25); border-radius: 8px; padding: 9px 12px;
+}
+.apercu .ap-liste {
+  max-height: 150px; overflow-y: auto; margin-top: 8px;
+  border: 1px solid var(--ligne); border-radius: 8px; padding: 8px 10px;
+}
+.apercu .ap-liste div { padding: 2px 0; color: var(--texte-2); }
+.apercu .ap-liste b { color: var(--blanc-visiere); font-weight: 600; }
+
 /* ---------- Toast ---------- */
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 16px);

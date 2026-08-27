@@ -4,9 +4,11 @@ import {
   load, totaux, fmtEUR, fmtEUR2, fmtDate,
   etapeIndex, prochaineEtape, avancerCommande, annulerCommande,
   addProposition, creerCommercial, saveSettings,
+  analyserImport, importerProspects,
   dateLivraisonEstimee, kpisCommercial,
 } from "./store.js";
-import { boot, topbar, toast, tente, badgeCommande, railHTML, esc } from "./ui.js";
+import { boot, topbar, toast, tente, badgeCommande, badgeProspect, railHTML, esc } from "./ui.js";
+import { promptProspection } from "./prompt-prospection.js";
 
 const me = await boot("admin");
 const main = document.getElementById("main");
@@ -15,7 +17,7 @@ const TABS = [
   { id: "dash", label: "Vue globale" },
   { id: "commandes", label: "Commandes" },
   { id: "equipe", label: "Commerciaux" },
-  { id: "propositions", label: "Propositions" },
+  { id: "propositions", label: "Prospection" },
   { id: "reglages", label: "Réglages" },
 ];
 const activate = topbar(me, TABS, "Administration");
@@ -193,19 +195,45 @@ function renderEquipe() {
   });
 }
 
-/* ---------- Propositions ---------- */
+/* ---------- Prospection : prospects confiés + propositions de zones ---------- */
 function renderPropositions() {
-  const list = load().propositions.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const d = load();
+  const props = d.propositions.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const prospects = d.prospects.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const importes = prospects.filter((p) => p.source === "proposition_admin").length;
   const badge = (s) => s === "proposee" ? `<span class="badge b-ambre">En attente</span>`
     : s === "acceptee" ? `<span class="badge b-bleu">Acceptée</span>` : `<span class="badge b-vert">Traitée</span>`;
+
   main.innerHTML = `
-    <div class="page-title"><h1>Propositions de démarchage</h1>
-      <span class="sub">Suggérez des zones à vos commerciaux selon leur secteur</span>
-      <button class="btn primary sm" id="add-prop" style="margin-left:auto">+ Nouvelle proposition</button></div>
+    <div class="page-title"><h1>Prospection</h1>
+      <span class="sub">${prospects.length} prospect(s) au total, dont ${importes} importé(s) par l'administration</span>
+      <span style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn primary sm" id="add-import">+ Importer des prospects (JSON)</button>
+        <button class="btn sm" id="add-prop">+ Proposition de zone</button>
+      </span></div>
+
     <section class="panel scroll-x">
+      <h2>Prospects confiés aux commerciaux <span class="count">${prospects.length}</span></h2>
+      <table>
+        <thead><tr><th>Entreprise</th><th>Type</th><th>Ville</th><th>Commercial</th><th>Statut</th><th>Ajouté le</th></tr></thead>
+        <tbody>${prospects.slice(0, 100).map((p) => `<tr>
+          <td><b>${esc(p.entreprise)}</b>${p.source === "proposition_admin" ? ` <span class="badge b-cyan b-off">Importé</span>` : ""}
+            ${p.notes.length ? `<div class="muted">${esc(p.notes[p.notes.length - 1].t)}</div>` : ""}</td>
+          <td class="muted">${esc(p.type)}</td>
+          <td>${esc(p.ville)}</td>
+          <td class="muted">${esc(nomCommercial(p.commercialId))}</td>
+          <td>${badgeProspect(p.statut)}</td>
+          <td class="muted">${fmtDate(p.createdAt)}</td>
+        </tr>`).join("") || `<tr><td colspan="6"><p class="empty">Aucun prospect. Importez votre première liste.</p></td></tr>`}</tbody>
+      </table>
+      ${prospects.length > 100 ? `<p class="hint" style="margin-top:10px">100 plus récents affichés sur ${prospects.length}.</p>` : ""}
+    </section>
+
+    <section class="panel scroll-x">
+      <h2>Propositions de zone <span class="count">${props.length}</span></h2>
       <table>
         <thead><tr><th>Zone</th><th>Commercial</th><th>Cibles</th><th>Statut</th><th>Date</th></tr></thead>
-        <tbody>${list.map((pr) => `<tr>
+        <tbody>${props.map((pr) => `<tr>
           <td class="tag-zone"><b>${esc(pr.zone)}</b><div class="muted">${esc(pr.message)}</div></td>
           <td>${esc(nomCommercial(pr.commercialId))}</td>
           <td class="muted">${esc(pr.cible)}</td>
@@ -214,14 +242,18 @@ function renderPropositions() {
         </tr>`).join("") || `<tr><td colspan="5"><p class="empty">Aucune proposition envoyée.</p></td></tr>`}</tbody>
       </table>
     </section>`;
+
   document.getElementById("add-prop").addEventListener("click", () => {
     if (!commerciaux().length) { toast("Créez d'abord un compte commercial.", true); return; }
-    document.getElementById("pr-com").innerHTML = commerciaux()
-      .map((u) => `<option value="${u.id}">${esc(u.nom)} — ${esc(u.zone)}</option>`).join("");
+    document.getElementById("pr-com").innerHTML = optionsCommerciaux();
     document.getElementById("form-prop").reset();
     document.getElementById("dlg-prop").showModal();
   });
+  document.getElementById("add-import").addEventListener("click", ouvrirImport);
 }
+
+const optionsCommerciaux = () => commerciaux()
+  .map((u) => `<option value="${u.id}">${esc(u.nom)}${u.zone ? " — " + esc(u.zone) : ""}</option>`).join("");
 
 /* ---------- Réglages ---------- */
 function renderReglages() {
@@ -300,6 +332,106 @@ document.getElementById("form-user").addEventListener("submit", async (e) => {
     zone: document.getElementById("u-zone").value.trim(),
     tel: document.getElementById("u-tel").value.trim(),
   }), "Compte commercial créé — transmettez-lui ses identifiants.");
+  render();
+});
+
+/* ---------- Import JSON de prospects ---------- */
+const dlgImport = document.getElementById("dlg-import");
+const champJson = document.getElementById("i-json");
+const champZone = document.getElementById("i-zone");
+const selImport = document.getElementById("i-com");
+const apercu = document.getElementById("i-apercu");
+const btnImport = document.getElementById("i-go");
+let aImporter = [];
+
+function ouvrirImport() {
+  if (!commerciaux().length) { toast("Créez d'abord un compte commercial.", true); return; }
+  selImport.innerHTML = optionsCommerciaux();
+  champJson.value = "";
+  champZone.value = "";
+  apercu.innerHTML = "";
+  aImporter = [];
+  btnImport.disabled = true;
+  btnImport.textContent = "Importer";
+  dlgImport.showModal();
+}
+
+function analyser() {
+  const texte = champJson.value.trim();
+  aImporter = [];
+  if (!texte) { apercu.innerHTML = ""; majBouton(); return; }
+
+  const r = analyserImport(texte, {
+    commercialParDefaut: selImport.value,
+    commerciaux: commerciaux(),
+    existants: load().prospects,
+  });
+
+  if (r.erreurGlobale) {
+    apercu.innerHTML = `<div class="ap-err">${esc(r.erreurGlobale)}</div>`;
+    majBouton();
+    return;
+  }
+  if (r.zone && !champZone.value) champZone.value = r.zone;
+  aImporter = r.valides;
+
+  const lignes = [];
+  lignes.push(`<div class="ap-line"><span class="badge b-vert">${r.valides.length} à importer</span>
+    ${r.doublons.length ? `<span class="badge b-ambre">${r.doublons.length} déjà en base</span>` : ""}
+    ${r.rejets.length ? `<span class="badge b-rouge">${r.rejets.length} rejeté(s)</span>` : ""}</div>`);
+  if (r.valides.length) {
+    lignes.push(`<div class="ap-liste">${r.valides.map((v) =>
+      `<div><b>${esc(v.entreprise)}</b> — ${esc(v.type)}${v.ville ? " · " + esc(v.ville) : ""}
+       <span class="muted">→ ${esc(nomCommercial(v.commercialId))}</span></div>`).join("")}</div>`);
+  }
+  if (r.doublons.length) {
+    lignes.push(`<p class="hint" style="margin-top:8px">Ignorés (déjà présents) : ${r.doublons.slice(0, 5).map((d) => esc(d.libelle)).join(", ")}${r.doublons.length > 5 ? "…" : ""}</p>`);
+  }
+  if (r.rejets.length) {
+    lignes.push(`<p class="hint" style="margin-top:6px; color:var(--rouge)">Rejets : ${r.rejets.slice(0, 5).map((x) => esc(x.libelle) + " (" + esc(x.raison) + ")").join(", ")}${r.rejets.length > 5 ? "…" : ""}</p>`);
+  }
+  apercu.innerHTML = lignes.join("");
+  majBouton();
+}
+
+function majBouton() {
+  btnImport.disabled = aImporter.length === 0;
+  btnImport.textContent = aImporter.length ? `Importer ${aImporter.length} prospect(s)` : "Importer";
+}
+
+champJson.addEventListener("input", analyser);
+selImport.addEventListener("change", analyser);
+
+document.getElementById("i-file-btn").addEventListener("click", () => document.getElementById("i-file").click());
+document.getElementById("i-file").addEventListener("change", async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  champJson.value = await f.text();
+  analyser();
+  e.target.value = "";
+});
+
+document.getElementById("i-prompt").addEventListener("click", async (e) => {
+  const zone = champZone.value.trim() || (commerciaux().find((u) => u.id === selImport.value) || {}).zone || "";
+  try {
+    await navigator.clipboard.writeText(promptProspection(zone || undefined));
+    toast("Prompt copié — collez-le dans Cowork.");
+  } catch {
+    // Presse-papier refusé (permission) : on bascule sur le champ, prêt à copier.
+    champJson.value = promptProspection(zone || undefined);
+    champJson.select();
+    toast("Presse-papier indisponible : le prompt est dans le champ, copiez-le puis remplacez-le par le JSON.", true);
+  }
+});
+
+document.getElementById("form-import").addEventListener("submit", async (e) => {
+  if (e.submitter && e.submitter.value === "cancel") return;
+  if (!aImporter.length) return;
+  const n = aImporter.length;
+  const zone = champZone.value.trim();
+  const ok = await tente(() => importerProspects(aImporter));
+  if (ok) toast(`${n} prospect(s) importé(s)${zone ? " — " + zone : ""}`);
+  aImporter = [];
   render();
 });
 
