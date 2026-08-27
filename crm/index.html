@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Cascanics CRM — Connexion</title>
+  <link rel="icon" href="../assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/crm.css" />
+</head>
+<body>
+  <main class="login">
+    <div class="mark">
+      <img src="../assets/logo-emblem.png" alt="Cascanics" />
+      <div class="word">CASCANICS</div>
+      <small>Espace équipe — Prospection &amp; Ventes</small>
+    </div>
+
+    <form id="form-login" style="width:min(380px,100%)" novalidate>
+      <label class="f" for="l-email">E-mail</label>
+      <input id="l-email" type="email" autocomplete="username" required placeholder="prenom@cascanics.com" />
+      <label class="f" for="l-pw">Mot de passe</label>
+      <input id="l-pw" type="password" autocomplete="current-password" required />
+      <p class="hint" id="l-err" style="color:var(--rouge); min-height:18px; margin-top:8px"></p>
+      <button class="btn primary" id="l-go" style="width:100%; margin-top:6px">Se connecter</button>
+    </form>
+
+    <p class="demo-note">Accès réservé à l'équipe Cascanics.<br />Mot de passe oublié : contactez l'administration.</p>
+  </main>
+
+  <script type="module">
+    import { initStore, login } from "./js/store.js";
+
+    const dest = (u) => u.role === "admin" ? "admin.html" : "commercial.html";
+
+    // Session déjà ouverte → entrée directe.
+    initStore().then((u) => { if (u) location.href = dest(u); }).catch(() => {});
+
+    const err = document.getElementById("l-err");
+    document.getElementById("form-login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      err.textContent = "";
+      const go = document.getElementById("l-go");
+      go.disabled = true;
+      go.textContent = "Connexion…";
+      try {
+        const u = await login(
+          document.getElementById("l-email").value.trim(),
+          document.getElementById("l-pw").value
+        );
+        if (!u) throw new Error("Compte sans profil — contactez l'administration.");
+        location.href = dest(u);
+      } catch (ex) {
+        err.textContent = /credentials/i.test(ex.message)
+          ? "E-mail ou mot de passe incorrect."
+          : ex.message;
+        go.disabled = false;
+        go.textContent = "Se connecter";
+      }
+    });
+  </script>
+</body>
+</html>

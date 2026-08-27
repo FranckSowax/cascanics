@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Cascanics CRM — Espace commercial</title>
+  <link rel="icon" href="../assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/crm.css" />
+</head>
+<body>
+  <header class="topbar"></header>
+  <main class="wrap" id="main"></main>
+
+  <!-- Modale prospect -->
+  <dialog id="dlg-prospect">
+    <h2 id="dlg-prospect-title">Nouveau prospect</h2>
+    <p class="d-sub">Un point de vente à démarcher : concession, accessoiriste, station…</p>
+    <form id="form-prospect" method="dialog">
+      <label class="f" for="p-ent">Entreprise *</label>
+      <input id="p-ent" required placeholder="Ex. Moto Expert Vincennes" />
+      <div class="f-row">
+        <div>
+          <label class="f" for="p-type">Type</label>
+          <select id="p-type"></select>
+        </div>
+        <div>
+          <label class="f" for="p-ville">Ville</label>
+          <input id="p-ville" placeholder="Ex. Lyon 7e" />
+        </div>
+      </div>
+      <label class="f" for="p-adresse">Adresse</label>
+      <input id="p-adresse" />
+      <div class="f-row">
+        <div>
+          <label class="f" for="p-contact">Contact</label>
+          <input id="p-contact" placeholder="Nom du gérant" />
+        </div>
+        <div>
+          <label class="f" for="p-tel">Téléphone</label>
+          <input id="p-tel" />
+        </div>
+      </div>
+      <label class="f" for="p-email">E-mail</label>
+      <input id="p-email" type="email" />
+      <div class="d-actions">
+        <button class="btn ghost" value="cancel" formnovalidate>Annuler</button>
+        <button class="btn primary" value="ok">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modale nouvelle commande -->
+  <dialog id="dlg-commande">
+    <h2>Nouveau bon de commande</h2>
+    <p class="d-sub">L'acompte de 50 % est dû à la commande, le solde de 50 % avant expédition après contrôle qualité.</p>
+    <form id="form-commande" method="dialog">
+      <label class="f">Offre</label>
+      <div class="offres">
+        <div class="offre selected" tabindex="0">
+          <h3>Achat machine</h3>
+          <p>Le client achète et exploite sa machine Cascanics.</p>
+        </div>
+        <div class="offre locked" aria-disabled="true">
+          <span class="soon">Bientôt disponible</span>
+          <h3>Placement en dépôt</h3>
+          <p>Machine installée par Cascanics, partage de revenus.</p>
+        </div>
+      </div>
+      <label class="f" for="c-client">Client / prospect *</label>
+      <select id="c-client" required></select>
+      <div class="f-row">
+        <div>
+          <label class="f" for="c-qty">Quantité</label>
+          <input id="c-qty" type="number" min="1" value="1" />
+        </div>
+        <div>
+          <label class="f" for="c-remise">Remise (%)</label>
+          <input id="c-remise" type="number" min="0" max="15" value="0" />
+        </div>
+      </div>
+      <p class="hint" id="c-stock-info"></p>
+      <p class="hint" id="c-totaux" style="margin-top:10px"></p>
+      <div class="d-actions">
+        <button class="btn ghost" value="cancel" formnovalidate>Annuler</button>
+        <button class="btn primary" value="ok">Créer le bon de commande</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/commercial.js"></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Bon de commande — Cascanics</title>
+  <link rel="icon" href="../assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Document destiné au papier : fond blanc, même en écran. */
+    :root {
+      --encre: #0B0D10;
+      --encre-2: #4a5058;
+      --ligne: #d8dce1;
+      --bleu-uv: #4B7BFF;
+      --ambre: #b46a1e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #e9ebee; color: var(--encre);
+      font-family: "Inter", system-ui, sans-serif;
+      font-size: 13px; line-height: 1.5;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .toolbar {
+      max-width: 800px; margin: 0 auto; padding: 14px 16px 0;
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+    .toolbar button, .toolbar a {
+      font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
+      border: 1px solid #c4c9cf; background: #fff; color: var(--encre);
+      border-radius: 8px; padding: 8px 16px;
+    }
+    .toolbar .primary { background: var(--bleu-uv); border-color: var(--bleu-uv); color: #fff; }
+    .sheet {
+      background: #fff; max-width: 800px; margin: 12px auto 40px;
+      padding: 44px 48px; box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+    }
+    h1 { font-family: "Space Grotesk", sans-serif; font-size: 24px; letter-spacing: -0.01em; }
+    .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 30px; }
+    .head .brand { display: flex; align-items: center; gap: 12px; }
+    .head .brand img { height: 44px; }
+    .head .brand .w { font-family: "Space Grotesk", sans-serif; font-weight: 700; letter-spacing: 0.28em; font-size: 17px; }
+    .head .meta { text-align: right; font-size: 12px; color: var(--encre-2); }
+    .head .meta b { color: var(--encre); font-size: 15px; font-family: "Space Grotesk", sans-serif; }
+    .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 26px; }
+    .partie { border: 1px solid var(--ligne); border-radius: 8px; padding: 14px 16px; font-size: 12.5px; }
+    .partie .t { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--encre-2); font-weight: 700; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+    th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--encre-2); padding: 8px 10px; border-bottom: 2px solid var(--encre); }
+    td { padding: 10px; border-bottom: 1px solid var(--ligne); vertical-align: top; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .totaux { margin-left: auto; width: 300px; }
+    .totaux td { padding: 6px 10px; border: 0; }
+    .totaux tr.tt td { border-top: 2px solid var(--encre); font-weight: 700; font-size: 15px; }
+    .paiement { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 22px 0; }
+    .pcard { border: 1.5px solid var(--ambre); border-radius: 8px; padding: 13px 15px; }
+    .pcard .p { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ambre); font-weight: 700; }
+    .pcard .m { font-family: "Space Grotesk", sans-serif; font-size: 19px; font-weight: 700; margin: 3px 0; }
+    .pcard .d { font-size: 11.5px; color: var(--encre-2); }
+    .conditions { font-size: 11.5px; color: var(--encre-2); border-top: 1px solid var(--ligne); padding-top: 14px; margin-top: 8px; }
+    .conditions li { margin: 3px 0 3px 16px; }
+    .sign { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+    .sig { border: 1px solid var(--ligne); border-radius: 8px; height: 110px; padding: 10px 14px; font-size: 11px; color: var(--encre-2); }
+    .foot { margin-top: 26px; font-size: 10.5px; color: var(--encre-2); text-align: center; }
+    @media print {
+      body { background: #fff; }
+      .toolbar { display: none; }
+      .sheet { box-shadow: none; margin: 0 auto; padding: 10mm 12mm; max-width: none; }
+    }
+    @page { size: A4; margin: 8mm; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <a href="javascript:history.back()">← Retour</a>
+    <button class="primary" onclick="window.print()">Imprimer / PDF</button>
+  </div>
+  <div class="sheet" id="sheet"><p style="padding:40px; text-align:center">Chargement…</p></div>
+
+  <script type="module">
+    import { initStore, load, totaux, fmtEUR2, fmtDate, dateLivraisonEstimee } from "./js/store.js";
+
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const sheet = document.getElementById("sheet");
+    const me = await initStore().catch(() => null);
+    if (!me) {
+      location.href = "index.html";
+      throw new Error("non connecté");
+    }
+    const id = new URLSearchParams(location.search).get("cmd");
+    const d = load();
+    const c = d.commandes.find((x) => x.id === id);
+
+    if (!c) {
+      sheet.innerHTML = `<p style="padding:40px; text-align:center">Bon de commande introuvable.</p>`;
+    } else {
+      const p = d.prospects.find((x) => x.id === c.clientId);
+      const com = d.users.find((u) => u.id === c.commercialId) || {};
+      const t = totaux(c);
+      const s = d.settings;
+      document.title = c.numero + " — Cascanics";
+      sheet.innerHTML = `
+        <div class="head">
+          <div class="brand">
+            <img src="../assets/logo-emblem.png" alt="" />
+            <div><div class="w">CASCANICS</div>
+              <div style="font-size:11px; color:var(--encre-2)">La station de soin pour casques</div></div>
+          </div>
+          <div class="meta">
+            <b>BON DE COMMANDE</b><br />
+            N° ${c.numero}<br />
+            Date : ${fmtDate(c.createdAt)}<br />
+            Commercial : ${esc(com.nom || "")}${com.tel ? " · " + esc(com.tel) : ""}
+          </div>
+        </div>
+
+        <div class="parties">
+          <div class="partie">
+            <div class="t">Vendeur</div>
+            <b>${esc(s.societe.nom)}</b><br />
+            ${esc(s.societe.adresse)}<br />
+            ${esc(s.societe.email)}<br />
+            ${esc(s.societe.siret)}
+          </div>
+          <div class="partie">
+            <div class="t">Client</div>
+            <b>${esc(p.entreprise)}</b><br />
+            ${esc(p.adresse)}${p.adresse ? "<br />" : ""}${esc(p.ville)}<br />
+            ${esc(p.contact)}${p.tel ? " · " + esc(p.tel) : ""}<br />
+            ${esc(p.email)}
+          </div>
+        </div>
+
+        <table>
+          <thead><tr><th>Désignation</th><th class="num">Qté</th><th class="num">PU HT</th><th class="num">Total HT</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>Machine Cascanics — nettoyage de casques en libre-service</b><br />
+                <span style="font-size:11.5px; color:var(--encre-2)">Brume active 360° · Traitement UV-C · Séchage air maîtrisé — 2 casques simultanés.
+                Paiement CB sans contact, pièces, billets. Supervision à distance. Certifiée CE. Garantie 12 mois, SAV &amp; pièces en France.</span></td>
+              <td class="num">${c.qty}</td>
+              <td class="num">${fmtEUR2(c.prixUnitaireHT)}</td>
+              <td class="num">${fmtEUR2(t.brutHT)}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="totaux">
+          ${c.remisePct ? `<tr><td>Remise commerciale (${c.remisePct} %)</td><td class="num">− ${fmtEUR2(t.brutHT - t.ht)}</td></tr>` : ""}
+          <tr><td>Total HT</td><td class="num">${fmtEUR2(t.ht)}</td></tr>
+          <tr><td>TVA ${s.tauxTVA} %</td><td class="num">${fmtEUR2(t.tva)}</td></tr>
+          <tr class="tt"><td>Total TTC</td><td class="num">${fmtEUR2(t.ttc)}</td></tr>
+        </table>
+
+        <div class="paiement">
+          <div class="pcard">
+            <div class="p">Acompte — à la commande</div>
+            <div class="m">${fmtEUR2(t.acompte)}</div>
+            <div class="d">50 % du montant TTC, dû à la signature du présent bon de commande.</div>
+          </div>
+          <div class="pcard">
+            <div class="p">Solde — avant expédition</div>
+            <div class="m">${fmtEUR2(t.solde)}</div>
+            <div class="d">50 % du montant TTC, dû après validation du contrôle qualité et avant le départ de la machine.</div>
+          </div>
+        </div>
+
+        <div class="conditions">
+          <b>Conditions</b>
+          <ul>
+            <li><b>Délais :</b> ${c.avecStock
+              ? "machine disponible en stock — expédition après réception du solde."
+              : `machine non disponible en stock — délai de fabrication de <b>${s.delaiFabricationJours} jours</b> à compter de la réception de l'acompte.`}
+              Livraison estimée : <b>${fmtDate(dateLivraisonEstimee(c).toISOString())}</b> (à titre indicatif).</li>
+            <li><b>Contrôle qualité :</b> chaque machine est testée et validée avant expédition ; le solde n'est appelé qu'après cette validation.</li>
+            <li><b>Garantie :</b> 12 mois pièces. SAV et pièces détachées en France. Machine et consommables conformes aux exigences européennes (CE).</li>
+            <li>La commande devient ferme à la signature du client et à l'encaissement de l'acompte.</li>
+          </ul>
+        </div>
+
+        <div class="sign">
+          <div class="sig">Pour ${esc(s.societe.nom)} — nom, date, signature</div>
+          <div class="sig">Pour le client — nom, date, signature précédée de la mention « Bon pour accord »</div>
+        </div>
+
+        <div class="foot">${esc(s.societe.nom)} — ${esc(s.societe.email)} — ${esc(s.societe.siret)}</div>`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Cascanics CRM — Administration</title>
+  <link rel="icon" href="../assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/crm.css" />
+</head>
+<body>
+  <header class="topbar"></header>
+  <main class="wrap" id="main"></main>
+
+  <!-- Modale commercial -->
+  <dialog id="dlg-user">
+    <h2>Nouveau commercial</h2>
+    <p class="d-sub">Crée son compte de connexion — transmettez-lui l'e-mail et le mot de passe initial (à changer ensuite).</p>
+    <form id="form-user" method="dialog">
+      <label class="f" for="u-nom">Nom complet *</label>
+      <input id="u-nom" required />
+      <div class="f-row">
+        <div>
+          <label class="f" for="u-zone">Zone / secteur *</label>
+          <input id="u-zone" required placeholder="Ex. Nouvelle-Aquitaine" />
+        </div>
+        <div>
+          <label class="f" for="u-tel">Téléphone</label>
+          <input id="u-tel" />
+        </div>
+      </div>
+      <div class="f-row">
+        <div>
+          <label class="f" for="u-email">E-mail de connexion *</label>
+          <input id="u-email" type="email" required autocomplete="off" />
+        </div>
+        <div>
+          <label class="f" for="u-pw">Mot de passe initial * (8 car. min)</label>
+          <input id="u-pw" type="text" required minlength="8" autocomplete="off" />
+        </div>
+      </div>
+      <div class="d-actions">
+        <button class="btn ghost" value="cancel" formnovalidate>Annuler</button>
+        <button class="btn primary" value="ok">Ajouter</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modale proposition -->
+  <dialog id="dlg-prop">
+    <h2>Proposer une zone de démarchage</h2>
+    <p class="d-sub">Le commercial la verra dans son espace et pourra accepter la tournée.</p>
+    <form id="form-prop" method="dialog">
+      <label class="f" for="pr-com">Commercial *</label>
+      <select id="pr-com" required></select>
+      <label class="f" for="pr-zone">Zone *</label>
+      <input id="pr-zone" required placeholder="Ex. Grenoble / Isère" />
+      <label class="f" for="pr-cible">Cibles</label>
+      <input id="pr-cible" placeholder="Ex. 3 concessions + 2 stations-service" />
+      <label class="f" for="pr-msg">Message</label>
+      <textarea id="pr-msg" rows="3" placeholder="Contexte, argumentaire, priorités…"></textarea>
+      <div class="d-actions">
+        <button class="btn ghost" value="cancel" formnovalidate>Annuler</button>
+        <button class="btn primary" value="ok">Envoyer la proposition</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
