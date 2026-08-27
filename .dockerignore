@@ -1,11 +1,27 @@
+# Contexte de build (Railway/Caddy) : n'embarquer que ce que le site doit servir.
+# ATTENTION : ne pas exclure Caddyfile — le Dockerfile le copie vers /etc/caddy
+# avant le COPY du site, et le build échouerait.
+
+# Historique git et outillage local
 .git
+.gitignore
 .claude
-*.mp4
-*.psd
-scripts
-README.md
-RECETTE.md
-netlify.toml
+**/.DS_Store
+
+# Config de build : lue par Railway/Netlify depuis le dépôt, pas depuis l'image
 Dockerfile
 .dockerignore
-.gitignore
+railway.json
+netlify.toml
+
+# Sources lourdes non servies (frames extraites suffisent au site)
+*.mp4
+*.psd
+*.pdf
+scripts
+logo cascanics.png
+
+# Documentation et schéma de base : à ne pas exposer publiquement
+**/README.md
+RECETTE.md
+crm/supabase-schema.sql
