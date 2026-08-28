@@ -74,7 +74,7 @@
         <li><a href="#orbit">La machine</a></li>
         <li><a href="#cycle">Le cycle</a></li>
         <li><a href="#inclus">Ce qui est compris</a></li>
-        <li><a href="#offres">Devenir hôte</a></li>
+        <li><a href="#offres">Les offres</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
@@ -250,7 +250,7 @@
         <div class="ov glass orbit-cta" data-in="77" data-out="100" data-stay="true" data-fx-in="slide-right">
           <h3>Installez Cascanics chez vous.</h3>
           <a class="btn btn-primary" href="#contact" data-projet="achat">Demander le dossier &amp; les prix</a>
-          <a class="btn" href="#contact" data-projet="depot">Vérifier l’éligibilité de mon site</a>
+          <span class="btn is-soon" aria-disabled="true">Héberger une machine <small>bientôt</small></span>
         </div>
       </div>
     </section>
@@ -353,7 +353,6 @@
             <div class="scr-slide scr-cycle">
               <span class="scr-tag">Cycle en cours</span>
               <strong>Brume active 360°</strong>
-              <span class="scr-bar"><i></i></span>
             </div>
             <div class="scr-slide scr-ad">
               <span class="scr-tag is-amber">Espace publicitaire</span>
@@ -377,11 +376,11 @@
           <p>Pour les professionnels qui veulent l’exploitation complète. Investissement contenu, revenus dès la première semaine, ROI typique en quelques mois.</p>
           <a class="btn btn-primary" href="#contact" data-projet="achat">Demander le dossier &amp; les prix</a>
         </div>
-        <div class="cta-card fade-in">
-          <p class="kicker">Dépôt</p>
+        <div class="cta-card is-soon fade-in">
+          <p class="kicker">Dépôt <span class="soon-tag">Bientôt disponible</span></p>
           <h3>J’héberge une machine</h3>
           <p>Le modèle dépôt avec partage de revenus. Zéro investissement. Nous installons, vous encaissez votre part.</p>
-          <a class="btn btn-primary" href="#contact" data-projet="depot">Vérifier l’éligibilité de mon site</a>
+          <span class="btn is-soon" aria-disabled="true">Pas encore ouvert</span>
         </div>
       </div>
       <div class="reassurance fade-in">
@@ -436,8 +435,8 @@
               <select id="f-projet" name="projet" required>
                 <option value="" selected disabled>Sélectionnez…</option>
                 <option value="achat">Achat d’une machine</option>
-                <option value="depot">Dépôt — j’héberge une machine</option>
-                <option value="les-deux">Les deux m’intéressent</option>
+                <option value="depot" disabled>Dépôt — j’héberge une machine (bientôt disponible)</option>
+                <option value="les-deux" disabled>Les deux m’intéressent (bientôt disponible)</option>
               </select>
             </div>
             <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">

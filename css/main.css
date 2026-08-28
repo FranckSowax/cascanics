@@ -557,15 +557,6 @@ h1, h2, h3, h4 {
   border-color: rgba(240, 164, 91, 0.32);
 }
 .scr-sub { font-size: 12.5px; color: rgba(244, 246, 248, 0.55); }
-.scr-bar {
-  display: block; height: 4px; border-radius: 99px;
-  background: rgba(244, 246, 248, 0.12); overflow: hidden;
-}
-.scr-bar i {
-  display: block; height: 100%; width: 0;
-  border-radius: 99px; background: var(--cyan-brume);
-  animation: scrFill 9s var(--ease-out) infinite;
-}
 .scr-cycle { animation: scrA 9s ease-in-out infinite; }
 .scr-ad { animation: scrB 9s ease-in-out infinite; opacity: 0; }
 .scr-foot {
@@ -574,7 +565,6 @@ h1, h2, h3, h4 {
 }
 @keyframes scrA { 0%, 38% { opacity: 1; } 46%, 92% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes scrB { 0%, 38% { opacity: 0; } 46%, 92% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes scrFill { 0% { width: 8%; } 38% { width: 96%; } 46%, 100% { width: 8%; } }
 
 @media (max-width: 1000px) {
   .inclus-grid { grid-template-columns: 1fr 1fr; }
@@ -683,10 +673,9 @@ h1, h2, h3, h4 {
 @media (prefers-reduced-motion: reduce) {
   .noise, .scroll-cue .arrow { animation: none; }
   /* Ecran fige sur l'annonce : c'est elle qui porte le message. */
-  .scr-cycle, .scr-ad, .scr-bar i { animation: none; }
+  .scr-cycle, .scr-ad { animation: none; }
   .scr-cycle { opacity: 0; }
   .scr-ad { opacity: 1; }
-  .scr-bar i { width: 60%; }
   .inclus-card { transition: none; }
 }
 .static-mode .scrub { height: auto; min-height: 100svh; display: grid; }
@@ -710,3 +699,33 @@ h1, h2, h3, h4 {
 .static-mode .ov-watermark { display: none; }
 .static-mode .fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out); }
 .static-mode .fade-in.in-view { opacity: 1; transform: none; }
+
+/* ---------- Offre annoncée mais pas encore ouverte ---------- */
+.cta-card.is-soon {
+  border-color: rgba(244, 246, 248, 0.07);
+  background: linear-gradient(160deg, rgba(244, 246, 248, 0.025), rgba(244, 246, 248, 0.006));
+}
+.cta-card.is-soon:hover { transform: none; border-color: rgba(244, 246, 248, 0.07); box-shadow: none; }
+.cta-card.is-soon h3 { color: rgba(244, 246, 248, 0.52); }
+.cta-card.is-soon p { color: rgba(244, 246, 248, 0.4); }
+.cta-card.is-soon .kicker { color: rgba(244, 246, 248, 0.45); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.soon-tag {
+  font-family: var(--font-body); font-weight: 600;
+  font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ambre-flux);
+  border: 1px solid rgba(240, 164, 91, 0.4);
+  border-radius: 99px; padding: 3px 9px;
+}
+.btn.is-soon {
+  cursor: not-allowed; pointer-events: none;
+  color: rgba(244, 246, 248, 0.5);
+  background: transparent;
+  border-color: rgba(244, 246, 248, 0.14);
+  border-style: dashed;
+}
+.btn.is-soon small {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ambre-flux);
+}
+/* Option grisée dans les listes déroulantes */
+select option:disabled { color: rgba(244, 246, 248, 0.38); }
