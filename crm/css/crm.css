@@ -273,3 +273,36 @@ dialog textarea#i-json {
 .hint { font-size: 12px; color: var(--texte-3); }
 .sep { height: 1px; background: var(--ligne); margin: 16px 0; }
 .tag-zone { color: var(--cyan-brume); font-weight: 600; }
+
+/* ---------- Argumentaire ---------- */
+.arg-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px; align-items: start; margin-bottom: 16px;
+}
+.arg-grid .panel { margin-top: 0; }
+@media (max-width: 900px) { .arg-grid { grid-template-columns: 1fr; } }
+
+.arg-list { list-style: none; }
+.arg-list li {
+  position: relative; padding-left: 20px; margin-bottom: 9px;
+  font-size: 13.5px; line-height: 1.55; color: var(--texte-2);
+}
+.arg-list li::before {
+  content: ""; position: absolute; left: 0; top: 7px;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--cyan-brume);
+}
+.arg-list b { color: var(--blanc-visiere); font-weight: 600; }
+
+.arg-revenus { border-color: rgba(240, 164, 91, 0.3); }
+.arg-rev { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 620px) { .arg-rev { grid-template-columns: 1fr; } }
+.arg-rev .k-label {
+  display: block; font-size: 11.5px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--ambre-flux); margin-bottom: 6px; font-weight: 600;
+}
+.arg-rev p { font-size: 13px; color: var(--texte-2); line-height: 1.55; }
+
+.obj { padding: 11px 0; border-bottom: 1px solid var(--ligne); }
+.obj:last-child { border-bottom: 0; }
+.obj b { display: block; font-size: 13.5px; color: var(--cyan-brume); margin-bottom: 4px; }
+.obj p { font-size: 13px; color: var(--texte-2); line-height: 1.6; }

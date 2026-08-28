@@ -15,6 +15,7 @@ const TABS = [
   { id: "prospects", label: "Prospection" },
   { id: "commandes", label: "Commandes" },
   { id: "propositions", label: "Propositions" },
+  { id: "argumentaire", label: "Argumentaire" },
 ];
 const activate = topbar(me, TABS, "Espace commercial");
 let tab = "dash";
@@ -35,6 +36,7 @@ function render() {
   if (tab === "dash") renderDash();
   else if (tab === "prospects") renderProspects();
   else if (tab === "commandes") detailCmdId ? renderDetail(detailCmdId) : renderCommandes();
+  else if (tab === "argumentaire") renderArgumentaire();
   else renderPropositions();
 }
 
@@ -281,6 +283,97 @@ function bindRows() {
 function kpi(label, val, cls, sub) {
   return `<div class="panel kpi"><div class="k-label">${label}</div>
     <div class="k-val ${cls}">${val}</div><div class="k-sub">${sub}</div></div>`;
+}
+
+/* ---------- Argumentaire terrain ----------
+   Fiche produit + réponses aux objections. Les chiffres commerciaux sont lus
+   dans les réglages pour rester alignés sur les bons de commande. */
+function renderArgumentaire() {
+  const s = load().settings;
+  const ttc = s.prixMachineHT * (1 + s.tauxTVA / 100);
+
+  const bloc = (titre, items) => `<section class="panel">
+    <h2>${titre}</h2>
+    <ul class="arg-list">${items.map((t) => `<li>${t}</li>`).join("")}</ul>
+  </section>`;
+
+  const objections = [
+    ["« Je n'ai pas la place. »",
+     "66 × 56 cm au sol, moins de 0,4 m². Une prise 220 V standard suffit : ni arrivée d'eau, ni évacuation, ni génie civil. Intérieur ou extérieur abrité."],
+    ["« C'est cher. »",
+     `Ramenez-le au cycle : la machine tourne sans personnel, 7 j/7. Ajoutez la location d'espaces publicitaires sur l'écran, et vous avez deux revenus pour un seul investissement. Financement possible : ${fmtEUR2(ttc / 2)} à la commande, le solde seulement après contrôle qualité.`],
+    ["« Et si elle tombe en panne ? »",
+     "Garantie 12 mois : support technique à distance et pièces remplacées. La supervision à distance nous alerte souvent avant que le client ne voie le problème."],
+    ["« Mes clients ne paieront pas. »",
+     "Aucun frein au paiement : CB sans contact, Visa, Mastercard, Apple Pay, Google Pay, plus billets et pièces. Le client paie comme il veut, en trois gestes."],
+    ["« Il faut quelqu'un pour s'en occuper ? »",
+     "Non. Le client scanne, choisit son cycle, récupère son casque. Vous pilotez le chiffre d'affaires, les prix et les alertes depuis votre téléphone."],
+    ["« Ça abîme les casques ? »",
+     "Aucun démontage, aucun contact avec l'eau : brume active, UV-C, séchage à air tempéré. C'est justement l'argument contre le lavage à la main."],
+    ["« Quel délai ? »",
+     `${s.delaiFabricationJours} jours de fabrication si la machine n'est pas en stock, à compter de la réception de l'acompte. Vérifiez le stock dans le CRM avant de vous engager sur une date.`],
+  ];
+
+  main.innerHTML = `
+    <div class="page-title"><h1>Argumentaire</h1>
+      <span class="sub">Ce que vous vendez, ce qui est compris, et quoi répondre</span></div>
+
+    <div class="arg-grid">
+      ${bloc("La machine en 30 secondes", [
+        "<b>Double caisson</b> : 2 casques traités en même temps — duos, groupes, flux de station.",
+        "<b>Écran tactile 21,5 pouces</b> : parcours en 3 gestes, aucun personnel requis.",
+        "<b>Sans eau, sans démontage</b> : brume active 360°, traitement UV-C, séchage air maîtrisé.",
+        "<b>Multi-casques</b> : moto, scooter, ski, vélo, chantier — le marché dépasse les motards.",
+        "<b>Supervision à distance</b> : chiffre d'affaires, alertes et prix depuis le téléphone.",
+      ])}
+
+      ${bloc("Ce qui est compris", [
+        "Habillage personnalisé aux couleurs du client.",
+        "Encaissement complet : CB sans contact, Visa, Mastercard, Apple Pay, Google Pay, billets et pièces en euros.",
+        "Caisse bois de transport.",
+        "Installation, paramétrage des cycles et des prix, prise en main.",
+        "Garantie 12 mois : support technique à distance et pièces remplacées.",
+      ])}
+
+      ${bloc("Encombrement &amp; installation", [
+        "Machine : <b>1830 × 660 × 560 mm</b>, 125 kg — moins de 0,4 m² au sol.",
+        "Emballée : 1960 × 750 × 650 mm, 145 kg, 0,96 m³ — prévoir l'accès de livraison.",
+        "Alimentation <b>220 V</b>, prise standard. Ni arrivée d'eau, ni évacuation.",
+        "Intérieur ou extérieur abrité.",
+      ])}
+
+      <section class="panel arg-revenus">
+        <h2>Deux sources de revenus</h2>
+        <div class="arg-rev">
+          <div><span class="k-label">1 — Les cycles</span>
+            <p>La machine encaisse seule, 7 j/7, sans personnel ni gestion de caisse.</p></div>
+          <div><span class="k-label">2 — L'écran</span>
+            <p>Entre deux casques, l'écran 21,5 pouces diffuse ce que le client décide :
+               ses propres offres, ou des publicités locales qu'il facture aux commerces
+               voisins — garage, auto-école, assureur, restaurant. Un revenu qui tombe
+               même quand personne ne lave son casque.</p></div>
+        </div>
+        <p class="hint">C'est souvent l'argument qui débloque : l'écran travaille alors que la machine est à l'arrêt.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Conditions commerciales</h2>
+        <table>
+          <tr><td>Prix machine</td><td class="num"><b>${fmtEUR2(s.prixMachineHT)} HT</b> · ${fmtEUR2(ttc)} TTC</td></tr>
+          <tr><td>Acompte à la commande</td><td class="num" style="color:var(--ambre-flux)">50 % — ${fmtEUR2(ttc / 2)}</td></tr>
+          <tr><td>Solde avant départ, après contrôle qualité</td><td class="num" style="color:var(--ambre-flux)">50 % — ${fmtEUR2(ttc / 2)}</td></tr>
+          <tr><td>Fabrication hors stock</td><td class="num">${s.delaiFabricationJours} jours après acompte</td></tr>
+          <tr><td>Machines en stock</td><td class="num">${s.stockMachines}</td></tr>
+          <tr><td>Votre commission</td><td class="num" style="color:var(--vert-valide)">${s.commissionPct} % du CA HT encaissé</td></tr>
+        </table>
+        <p class="hint">Remise possible jusqu'à 15 % depuis le bon de commande. Le placement en dépôt n'est pas encore ouvert à la vente.</p>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>Objections fréquentes <span class="count">${objections.length}</span></h2>
+      ${objections.map(([q, r]) => `<div class="obj"><b>${q}</b><p>${r}</p></div>`).join("")}
+    </section>`;
 }
 
 /* ---------- Modale prospect ---------- */
