@@ -24,3 +24,4 @@ logo cascanics.png
 # Documentation et schéma de base : à ne pas exposer publiquement
 **/*.md
 crm/supabase-schema.sql
+crm/migration-2026-09.sql
