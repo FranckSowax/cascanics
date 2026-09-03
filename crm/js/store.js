@@ -51,7 +51,7 @@ export function load() {
 export function currentUser() { return me; }
 
 /* Conversions snake_case (base) ↔ camelCase (UI) */
-const p2js = (r) => ({ id: r.id, commercialId: r.commercial_id, entreprise: r.entreprise, type: r.type, ville: r.ville, adresse: r.adresse, contact: r.contact, tel: r.tel, email: r.email, statut: r.statut, source: r.source, notes: r.notes || [], createdAt: r.created_at });
+const p2js = (r) => ({ id: r.id, commercialId: r.commercial_id, entreprise: r.entreprise, type: r.type, ville: r.ville, adresse: r.adresse, contact: r.contact, tel: r.tel, email: r.email, statut: r.statut, source: r.source, reserveLe: r.reserve_le, notes: r.notes || [], createdAt: r.created_at });
 const c2js = (r) => ({ id: r.id, numero: r.numero, clientId: r.client_id, commercialId: r.commercial_id, offre: r.offre, qty: r.qty, prixUnitaireHT: +r.prix_unitaire_ht, remisePct: +r.remise_pct, transportHT: +(r.transport_ht || 0), statut: r.statut, avecStock: r.avec_stock, historique: r.historique || [], createdAt: r.created_at });
 const u2js = (r) => ({ id: r.id, role: r.role, nom: r.nom, zone: r.zone, tel: r.tel, email: r.email });
 const pr2js = (r) => ({ id: r.id, commercialId: r.commercial_id, zone: r.zone, cible: r.cible, message: r.message, statut: r.statut, createdAt: r.created_at });
@@ -292,7 +292,7 @@ export function analyserImport(texte, { commercialParDefaut, commerciaux, exista
       if (u) commercialId = u.id;
       else { rejets.push({ rang, libelle: entreprise, raison: "commercial « " + cible + " » inconnu" }); return; }
     }
-    if (!commercialId) { rejets.push({ rang, libelle: entreprise, raison: "aucun commercial destinataire" }); return; }
+    // commercialId vide (ou "pool") = prospect versé au pool commun, réservable par tous.
 
     // notes accepte une phrase, une liste de phrases, ou le format interne [{d,t}].
     const n = item.notes ?? item.note ?? "";
@@ -322,7 +322,7 @@ export async function importerProspects(lignes) {
   if (!lignes.length) return [];
   const { data, error } = await supa.from("prospects").insert(
     lignes.map((l) => ({
-      commercial_id: l.commercialId, entreprise: l.entreprise, type: l.type,
+      commercial_id: l.commercialId || null, entreprise: l.entreprise, type: l.type,
       ville: l.ville, adresse: l.adresse, contact: l.contact, tel: l.tel,
       email: l.email, notes: l.notes, source: "proposition_admin",
     }))
@@ -348,6 +348,71 @@ export async function patchProposition(id, statut) {
   const { error } = await supa.from("propositions").update({ statut }).eq("id", id);
   if (error) fail(error, "Mise à jour de la proposition");
   load().propositions.find((p) => p.id === id).statut = statut;
+}
+
+/* ---------- Pool commun de prospection ---------- */
+/* Un prospect sans commercial appartient au pool : tous les commerciaux le voient,
+   n'importe lequel peut le réserver dans la limite du quota hebdomadaire. */
+
+export const QUOTA_DEFAUT = 5;
+export const quotaHebdo = () => +(load().settings.quotaHebdoProspects ?? QUOTA_DEFAUT);
+
+/* Lundi 00:00 heure de Paris — exactement la même règle que debut_semaine() côté
+   Postgres, quel que soit le fuseau du navigateur (sinon l'UI et le serveur ne
+   comptent pas la même semaine et le quota affiché ment). */
+export function debutSemaine(d = new Date()) {
+  const paris = new Date(d.toLocaleString("en-US", { timeZone: "Europe/Paris" }));
+  const ecart = d.getTime() - paris.getTime(); // navigateur → Paris
+  paris.setHours(0, 0, 0, 0);
+  paris.setDate(paris.getDate() - ((paris.getDay() + 6) % 7));
+  return new Date(paris.getTime() + ecart);
+}
+
+export const prospectsPool = () => load().prospects.filter((p) => !p.commercialId);
+
+/* Réservations déjà consommées cette semaine par un commercial. */
+export function reservationsSemaine(commercialId) {
+  const debut = debutSemaine().getTime();
+  return load().prospects.filter(
+    (p) => p.commercialId === commercialId && p.reserveLe && new Date(p.reserveLe).getTime() >= debut
+  ).length;
+}
+
+export const quotaRestant = (commercialId) => Math.max(0, quotaHebdo() - reservationsSemaine(commercialId));
+
+/* Un prospect encore vierge et sans bon de commande peut retourner au pool. */
+export function estRelachable(p) {
+  if (!p.reserveLe || p.statut !== "a_visiter") return false;
+  return !load().commandes.some((c) => c.clientId === p.id && c.statut !== "annulee");
+}
+
+export async function reserverProspect(id) {
+  const { data, error } = await supa.rpc("reserver_prospect", { p_id: id });
+  if (error) {
+    // Pris entre-temps par un collègue : on retire la ligne du cache pour que
+    // le prochain rendu ne la propose plus.
+    if (/plus disponible/i.test(error.message || "")) {
+      const d = load();
+      const i = d.prospects.findIndex((p) => p.id === id);
+      if (i >= 0) d.prospects.splice(i, 1);
+    }
+    fail(error, "Réservation du prospect");
+  }
+  const js = p2js(Array.isArray(data) ? data[0] : data);
+  const d = load();
+  const i = d.prospects.findIndex((p) => p.id === id);
+  if (i >= 0) d.prospects[i] = js; else d.prospects.push(js);
+  return js;
+}
+
+export async function relacherProspect(id) {
+  const { data, error } = await supa.rpc("relacher_prospect", { p_id: id });
+  if (error) fail(error, "Restitution du prospect");
+  const js = p2js(Array.isArray(data) ? data[0] : data);
+  const d = load();
+  const i = d.prospects.findIndex((p) => p.id === id);
+  if (i >= 0) d.prospects[i] = js;
+  return js;
 }
 
 /* ---------- Mutations : réglages & équipe (admin) ---------- */

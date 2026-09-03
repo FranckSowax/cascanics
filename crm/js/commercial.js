@@ -4,6 +4,8 @@ import {
   STATUTS_PROSPECT, TYPES_PROSPECT, prochaineEtape,
   addProspect, patchProspect, creerCommande, avancerCommande,
   patchProposition, dateLivraisonEstimee, kpisCommercial,
+  prospectsPool, reserverProspect, relacherProspect, estRelachable,
+  quotaHebdo, quotaRestant, reservationsSemaine, debutSemaine,
 } from "./store.js";
 import { boot, topbar, toast, tente, badgeCommande, railHTML, esc } from "./ui.js";
 
@@ -12,7 +14,8 @@ const main = document.getElementById("main");
 
 const TABS = [
   { id: "dash", label: "Tableau de bord" },
-  { id: "prospects", label: "Prospection" },
+  { id: "pool", label: "Prospects Cascanics" },
+  { id: "prospects", label: "Mes prospects" },
   { id: "commandes", label: "Commandes" },
   { id: "propositions", label: "Propositions" },
   { id: "argumentaire", label: "Argumentaire" },
@@ -34,6 +37,7 @@ const mesPropositions = () => load().propositions.filter((p) => p.commercialId =
 function render() {
   activate(tab);
   if (tab === "dash") renderDash();
+  else if (tab === "pool") renderPool();
   else if (tab === "prospects") renderProspects();
   else if (tab === "commandes") detailCmdId ? renderDetail(detailCmdId) : renderCommandes();
   else if (tab === "argumentaire") renderArgumentaire();
@@ -55,6 +59,8 @@ function renderDash() {
       ${kpi("Pipeline (HT)", fmtEUR(k.pipeline), "", "BC en attente de signature")}
       ${kpi("Visites réalisées", k.visites, "", k.prospects + " prospects au total")}
       ${kpi("Taux de conversion", k.conversion + " %", "", "signatures / visites")}
+      ${kpi("Réservations restantes", quotaRestant(me.id) + " / " + quotaHebdo(), "",
+            "cette semaine · " + prospectsPool().length + " prospect(s) dans le pool")}
     </div>
     <div class="cols">
       <section class="panel">
@@ -82,18 +88,98 @@ function renderDash() {
   bindPropButtons();
 }
 
+/* ---------- Pool commun : prospects Cascanics à réserver ---------- */
+function renderPool() {
+  const restant = quotaRestant(me.id);
+  const quota = quotaHebdo();
+  const pris = reservationsSemaine(me.id);
+  const lundi = debutSemaine();
+  const prochainLundi = new Date(lundi.getTime() + 7 * 864e5);
+  const list = prospectsPool().slice().sort((a, b) =>
+    (a.ville || "").localeCompare(b.ville || "") || a.entreprise.localeCompare(b.entreprise));
+
+  const villes = [...new Set(list.map((p) => p.ville).filter(Boolean))].sort();
+  const types = [...new Set(list.map((p) => p.type).filter(Boolean))].sort();
+
+  main.innerHTML = `
+    <div class="page-title"><h1>Prospects Cascanics</h1>
+      <span class="sub">Fichier commun à toute l'équipe — premier arrivé, premier servi</span>
+      <span style="margin-left:auto" class="badge ${restant ? "b-vert" : "b-rouge"}">
+        ${restant} réservation(s) restante(s) sur ${quota}</span></div>
+
+    <section class="panel">
+      <p class="hint" style="line-height:1.7">
+        Vous avez réservé <b>${pris}</b> prospect(s) depuis le lundi ${fmtDate(lundi.toISOString())}.
+        Le compteur repart à zéro le <b>${fmtDate(prochainLundi.toISOString())}</b>.
+        Un prospect réservé bascule dans « Mes prospects » et disparaît de cette liste pour les autres.
+        Tant que vous ne l'avez pas visité, vous pouvez le rendre au pool — cela vous rend une réservation.
+      </p>
+    </section>
+
+    <section class="panel scroll-x">
+      <h2>Disponibles <span class="count">${list.length}</span>
+        <span style="margin-left:auto; display:flex; gap:8px">
+          <select id="pool-ville" class="sm" style="width:auto"><option value="">Toutes les villes</option>
+            ${villes.map((v) => `<option>${esc(v)}</option>`).join("")}</select>
+          <select id="pool-type" class="sm" style="width:auto"><option value="">Tous les types</option>
+            ${types.map((t) => `<option>${esc(t)}</option>`).join("")}</select>
+        </span></h2>
+      <table>
+        <thead><tr><th>Entreprise</th><th>Type</th><th>Ville</th><th>Adresse</th><th>Contact</th><th></th></tr></thead>
+        <tbody id="pool-rows">
+          ${list.map((p) => `<tr data-ville="${esc(p.ville)}" data-type="${esc(p.type)}">
+            <td><b>${esc(p.entreprise)}</b></td>
+            <td class="muted">${esc(p.type)}</td>
+            <td>${esc(p.ville)}</td>
+            <td class="muted">${esc(p.adresse)}</td>
+            <td class="muted">${esc(p.contact)}${p.tel ? "<br />" + esc(p.tel) : ""}</td>
+            <td style="white-space:nowrap">
+              <button class="btn sm primary" data-reserve="${p.id}" ${restant ? "" : "disabled"}>Réserver</button>
+            </td>
+          </tr>`).join("") || `<tr><td colspan="6"><p class="empty">Le pool est vide. L'administration l'alimente depuis son espace.</p></td></tr>`}
+        </tbody>
+      </table>
+      ${restant ? "" : `<p class="hint" style="margin-top:10px; color:var(--ambre-flux)">
+        Quota hebdomadaire atteint. Traitez vos prospects en cours, ou rendez au pool ceux que vous ne visiterez pas.</p>`}
+    </section>`;
+
+  const filtrer = () => {
+    const v = document.getElementById("pool-ville").value;
+    const t = document.getElementById("pool-type").value;
+    main.querySelectorAll("#pool-rows tr[data-ville]").forEach((tr) => {
+      const ok = (!v || tr.dataset.ville === v) && (!t || tr.dataset.type === t);
+      tr.style.display = ok ? "" : "none";
+    });
+  };
+  ["pool-ville", "pool-type"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("change", filtrer);
+  });
+
+  main.querySelectorAll("[data-reserve]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      b.disabled = true;
+      const r = await tente(() => reserverProspect(b.dataset.reserve));
+      if (r) { toast(`« ${r.entreprise} » est à vous — il est dans « Mes prospects ».`); render(); }
+      else { b.disabled = false; render(); }
+    })
+  );
+}
+
 function renderProspects() {
   const list = mesProspects().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   main.innerHTML = `
     <div class="page-title"><h1>Prospection</h1>
-      <span class="sub">${list.length} prospect(s) — zone ${esc(me.zone)}</span>
+      <span class="sub">${list.length} prospect(s) — zone ${esc(me.zone)} · ${quotaRestant(me.id)} réservation(s) restante(s) cette semaine</span>
       <button class="btn primary sm" id="add-prospect" style="margin-left:auto">+ Nouveau prospect</button></div>
     <section class="panel scroll-x">
       <table>
         <thead><tr><th>Entreprise</th><th>Type</th><th>Ville</th><th>Contact</th><th>Statut</th><th></th></tr></thead>
         <tbody>
           ${list.map((p) => `<tr>
-            <td><b>${esc(p.entreprise)}</b>${p.source === "proposition_admin" ? ` <span class="badge b-cyan b-off">Proposé par l'admin</span>` : ""}
+            <td><b>${esc(p.entreprise)}</b>${p.reserveLe
+                ? ` <span class="badge b-cyan b-off">Réservé le ${fmtDate(p.reserveLe)}</span>`
+                : p.source === "proposition_admin" ? ` <span class="badge b-cyan b-off">Confié par l'admin</span>` : ""}
               ${p.notes.length ? `<div class="muted">${esc(p.notes[p.notes.length - 1].t)}</div>` : ""}</td>
             <td class="muted">${esc(p.type)}</td>
             <td>${esc(p.ville)}</td>
@@ -104,6 +190,7 @@ function renderProspects() {
             <td style="white-space:nowrap">
               <button class="btn sm ghost" data-note="${p.id}">+ Note</button>
               <button class="btn sm" data-bc="${p.id}">Bon de commande</button>
+              ${estRelachable(p) ? `<button class="btn sm ghost" data-relache="${p.id}" title="Le remettre à disposition de l'équipe">Rendre au pool</button>` : ""}
             </td>
           </tr>`).join("") || `<tr><td colspan="6"><p class="empty">Aucun prospect. Ajoutez votre première visite.</p></td></tr>`}
         </tbody>
@@ -130,6 +217,14 @@ function renderProspects() {
   );
   main.querySelectorAll("[data-bc]").forEach((b) =>
     b.addEventListener("click", () => openCommandeDialog(b.dataset.bc))
+  );
+  main.querySelectorAll("[data-relache]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      const p = load().prospects.find((x) => x.id === b.dataset.relache);
+      if (!confirm(`Rendre « ${p.entreprise} » au pool ? Il redevient réservable par toute l'équipe et vous récupérez une réservation.`)) return;
+      await tente(() => relacherProspect(p.id), "Prospect rendu au pool");
+      render();
+    })
   );
 }
 

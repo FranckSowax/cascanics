@@ -6,6 +6,7 @@ import {
   addProposition, creerCommercial, saveSettings,
   analyserImport, importerProspects,
   dateLivraisonEstimee, kpisCommercial,
+  prospectsPool, relacherProspect, quotaHebdo, reservationsSemaine, debutSemaine,
 } from "./store.js";
 import { boot, topbar, toast, tente, badgeCommande, badgeProspect, railHTML, esc } from "./ui.js";
 import { promptProspection } from "./prompt-prospection.js";
@@ -29,7 +30,8 @@ document.querySelectorAll(".topbar [data-tab]").forEach((b) =>
 );
 
 const commerciaux = () => load().users.filter((u) => u.role === "commercial");
-const nomCommercial = (id) => (load().users.find((u) => u.id === id) || {}).nom || "?";
+const nomCommercial = (id) => !id ? "Pool commun"
+  : (load().users.find((u) => u.id === id) || {}).nom || "?";
 const clientDe = (c) => load().prospects.find((p) => p.id === c.clientId);
 
 function render() {
@@ -202,33 +204,73 @@ function renderPropositions() {
   const d = load();
   const props = d.propositions.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const prospects = d.prospects.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const pool = prospectsPool().slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const lundi = debutSemaine();
   const importes = prospects.filter((p) => p.source === "proposition_admin").length;
   const badge = (s) => s === "proposee" ? `<span class="badge b-ambre">En attente</span>`
     : s === "acceptee" ? `<span class="badge b-bleu">Acceptée</span>` : `<span class="badge b-vert">Traitée</span>`;
 
   main.innerHTML = `
     <div class="page-title"><h1>Prospection</h1>
-      <span class="sub">${prospects.length} prospect(s) au total, dont ${importes} importé(s) par l'administration</span>
+      <span class="sub">${prospects.length} prospect(s) au total, dont ${importes} importé(s) par l'administration ·
+        ${pool.length} dans le pool commun · quota ${quotaHebdo()} réservation(s) par commercial et par semaine</span>
       <span style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap">
         <button class="btn primary sm" id="add-import">+ Importer des prospects (JSON)</button>
         <button class="btn sm" id="add-prop">+ Proposition de zone</button>
       </span></div>
 
     <section class="panel scroll-x">
-      <h2>Prospects confiés aux commerciaux <span class="count">${prospects.length}</span></h2>
+      <h2>Consommation du quota — semaine du ${fmtDate(lundi.toISOString())}</h2>
       <table>
-        <thead><tr><th>Entreprise</th><th>Type</th><th>Ville</th><th>Commercial</th><th>Statut</th><th>Ajouté le</th></tr></thead>
-        <tbody>${prospects.slice(0, 100).map((p) => `<tr>
-          <td><b>${esc(p.entreprise)}</b>${p.source === "proposition_admin" ? ` <span class="badge b-cyan b-off">Importé</span>` : ""}
-            ${p.notes.length ? `<div class="muted">${esc(p.notes[p.notes.length - 1].t)}</div>` : ""}</td>
+        <thead><tr><th>Commercial</th><th>Zone</th><th class="num">Réservés cette semaine</th><th class="num">Restant</th><th class="num">En cours (à visiter)</th></tr></thead>
+        <tbody>${commerciaux().map((u) => {
+          const pris = reservationsSemaine(u.id);
+          const aVisiter = d.prospects.filter((p) => p.commercialId === u.id && p.statut === "a_visiter").length;
+          return `<tr>
+            <td><b>${esc(u.nom)}</b></td>
+            <td class="muted">${esc(u.zone || "—")}</td>
+            <td class="num">${pris} / ${quotaHebdo()}</td>
+            <td class="num" style="color:${pris >= quotaHebdo() ? "var(--rouge)" : "var(--vert-valide)"}">${Math.max(0, quotaHebdo() - pris)}</td>
+            <td class="num">${aVisiter}</td>
+          </tr>`;
+        }).join("") || `<tr><td colspan="5"><p class="empty">Aucun commercial.</p></td></tr>`}</tbody>
+      </table>
+    </section>
+
+    <section class="panel scroll-x">
+      <h2>Pool commun — disponibles <span class="count">${pool.length}</span></h2>
+      <p class="hint">Visibles par tous les commerciaux, réservables dans la limite du quota hebdomadaire.</p>
+      <table>
+        <thead><tr><th>Entreprise</th><th>Type</th><th>Ville</th><th>Contact</th><th>Ajouté le</th></tr></thead>
+        <tbody>${pool.slice(0, 100).map((p) => `<tr>
+          <td><b>${esc(p.entreprise)}</b></td>
+          <td class="muted">${esc(p.type)}</td>
+          <td>${esc(p.ville)}</td>
+          <td class="muted">${esc(p.contact)}${p.tel ? " · " + esc(p.tel) : ""}</td>
+          <td class="muted">${fmtDate(p.createdAt)}</td>
+        </tr>`).join("") || `<tr><td colspan="5"><p class="empty">Pool vide. Importez une liste en la versant au pool commun.</p></td></tr>`}</tbody>
+      </table>
+      ${pool.length > 100 ? `<p class="hint" style="margin-top:10px">100 plus récents affichés sur ${pool.length}.</p>` : ""}
+    </section>
+
+    <section class="panel scroll-x">
+      <h2>Prospects pris en charge <span class="count">${prospects.filter((p) => p.commercialId).length}</span></h2>
+      <p class="hint">Tout ce que les commerciaux saisissent remonte ici : statut, dernière note, date de réservation.</p>
+      <table>
+        <thead><tr><th>Entreprise</th><th>Type</th><th>Ville</th><th>Commercial</th><th>Origine</th><th>Statut</th><th>Dernière note</th><th></th></tr></thead>
+        <tbody>${prospects.filter((p) => p.commercialId).slice(0, 100).map((p) => `<tr>
+          <td><b>${esc(p.entreprise)}</b></td>
           <td class="muted">${esc(p.type)}</td>
           <td>${esc(p.ville)}</td>
           <td class="muted">${esc(nomCommercial(p.commercialId))}</td>
+          <td class="muted">${p.reserveLe ? `Réservé le ${fmtDate(p.reserveLe)}`
+            : p.source === "proposition_admin" ? "Confié par l'admin" : "Ajouté par le commercial"}</td>
           <td>${badgeProspect(p.statut)}</td>
-          <td class="muted">${fmtDate(p.createdAt)}</td>
-        </tr>`).join("") || `<tr><td colspan="6"><p class="empty">Aucun prospect. Importez votre première liste.</p></td></tr>`}</tbody>
+          <td class="muted">${p.notes.length ? esc(p.notes[p.notes.length - 1].t) : "—"}</td>
+          <td>${p.statut === "a_visiter" ? `<button class="btn sm ghost" data-repool="${p.id}" title="Le remettre dans le pool commun">Remettre au pool</button>` : ""}</td>
+        </tr>`).join("") || `<tr><td colspan="8"><p class="empty">Aucun prospect pris en charge pour le moment.</p></td></tr>`}</tbody>
       </table>
-      ${prospects.length > 100 ? `<p class="hint" style="margin-top:10px">100 plus récents affichés sur ${prospects.length}.</p>` : ""}
+      ${prospects.filter((p) => p.commercialId).length > 100 ? `<p class="hint" style="margin-top:10px">100 plus récents affichés.</p>` : ""}
     </section>
 
     <section class="panel scroll-x">
@@ -252,6 +294,12 @@ function renderPropositions() {
     document.getElementById("dlg-prop").showModal();
   });
   document.getElementById("add-import").addEventListener("click", ouvrirImport);
+  main.querySelectorAll("[data-repool]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      await tente(() => relacherProspect(b.dataset.repool), "Prospect remis dans le pool commun");
+      render();
+    })
+  );
 }
 
 const optionsCommerciaux = () => commerciaux()
@@ -273,7 +321,7 @@ function renderReglages() {
       </div>
       <div class="f-row">
         <div><label class="f" for="s-stock">Machines en stock</label><input id="s-stock" type="number" min="0" value="${s.stockMachines}" /></div>
-        <div></div>
+        <div><label class="f" for="s-quota">Réservations du pool par commercial et par semaine</label><input id="s-quota" type="number" min="1" value="${s.quotaHebdoProspects ?? 5}" /></div>
       </div>
       <div class="sep"></div>
       <label class="f" for="s-nom">Société (en-tête du bon de commande)</label>
@@ -298,6 +346,7 @@ function renderReglages() {
       commissionPct: +document.getElementById("s-com").value,
       delaiFabricationJours: +document.getElementById("s-delai").value || 25,
       stockMachines: Math.max(0, +document.getElementById("s-stock").value || 0),
+      quotaHebdoProspects: Math.max(1, +document.getElementById("s-quota").value || 5),
       societe: {
         nom: document.getElementById("s-nom").value.trim(),
         adresse: document.getElementById("s-adresse").value.trim(),
@@ -348,8 +397,7 @@ const btnImport = document.getElementById("i-go");
 let aImporter = [];
 
 function ouvrirImport() {
-  if (!commerciaux().length) { toast("Créez d'abord un compte commercial.", true); return; }
-  selImport.innerHTML = optionsCommerciaux();
+  selImport.innerHTML = `<option value="">Pool commun — tous les commerciaux</option>` + optionsCommerciaux();
   champJson.value = "";
   champZone.value = "";
   apercu.innerHTML = "";

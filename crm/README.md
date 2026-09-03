@@ -37,16 +37,39 @@ Règles :
 | Page | Rôle |
 |---|---|
 | `index.html` | Connexion e-mail / mot de passe |
-| `commercial.html` | Tableau de bord (CA, commission, KPIs), prospection, commandes, propositions reçues |
+| `commercial.html` | Tableau de bord (CA, commission, KPIs), **pool Cascanics**, mes prospects, commandes, propositions reçues |
 | `admin.html` | Vue globale, validation des étapes, équipe (**création des comptes commerciaux**), prospection (**import JSON**), réglages |
 | `bon-de-commande.html?cmd=ID` | BC imprimable A4 (Imprimer/PDF) — envoi e-mail via `mailto:` depuis le détail de commande |
+
+## Pool commun de prospection
+
+Un prospect **sans commercial** appartient au pool : tous les commerciaux le voient dans l'onglet
+« Prospects Cascanics » et n'importe lequel peut le réserver.
+
+- **Quota : 5 réservations par commercial et par semaine civile** (lundi → dimanche, heure de Paris),
+  réglable dans Réglages. Le compteur repart à zéro le lundi.
+- La réservation est **atomique** (RPC `reserver_prospect`) : deux commerciaux ne peuvent pas prendre
+  la même ligne, et un verrou consultatif empêche un même commercial de dépasser son quota en
+  cliquant depuis deux onglets. Une fois réservé, le prospect quitte le pool et bascule dans
+  « Mes prospects ».
+- Le quota n'est pas contournable depuis le navigateur : `commercial_id` et `reserve_le` sont
+  retirés des droits d'écriture de `authenticated` (grant par colonne), elles ne changent que
+  par les RPC. La semaine est calculée en heure de Paris des deux côtés, JS et SQL.
+- **Restitution** : tant que le prospect est au statut « À visiter » et ne porte aucun bon de commande,
+  le commercial peut le rendre au pool (`relacher_prospect`) — cela lui rend une réservation.
+  L'admin peut remettre au pool n'importe quel prospect encore à visiter.
+- **L'attribution nominative reste possible** (import vers un commercial précis) et ne consomme pas
+  de quota.
+- Tout remonte à l'admin, onglet Prospection : consommation du quota par commercial, contenu du pool,
+  et pour chaque prospect pris en charge son origine, son statut et sa dernière note.
 
 ## Alimenter la prospection (admin → commerciaux)
 
 L'admin cherche les établissements à démarcher, puis les injecte en masse dans le CRM :
 
 1. Onglet **Prospection** → « Importer des prospects (JSON) ».
-2. Choisir le commercial destinataire et la zone, puis **« Copier le prompt de recherche »**.
+2. Choisir la destination — **Pool commun** (conseillé) ou un commercial précis — et la zone,
+   puis **« Copier le prompt de recherche »**.
 3. Coller ce prompt dans Cowork (ou tout assistant avec accès web) → il renvoie un JSON.
 4. Coller le JSON (ou charger le fichier `.json`) : l'aperçu annonce en direct combien
    d'entrées seront importées, combien sont déjà en base et combien sont rejetées, avec la raison.
@@ -64,9 +87,18 @@ Le texte du prompt vit dans `js/prompt-prospection.js` (source unique, lue par l
 
 ## Migration à jouer (base déjà en service)
 
-Le bas de `supabase-schema.sql` contient un bloc « Migration 2026-09 » : il ajoute la colonne
-`transport_ht` sur `commandes` et passe `commissionPct` à 10 dans les réglages. À exécuter une
-seule fois dans le SQL Editor de Supabase. Sur une base neuve, le schéma complet suffit.
+Sur une base neuve, `supabase-schema.sql` s'exécute tel quel de haut en bas. Sur une base déjà
+en service, copier **tout ce qui suit le titre « Migration 2026-09 » jusqu'à la fin du fichier**
+dans le SQL Editor de Supabase — l'ordre est important et le bloc est rejouable sans dommage :
+
+- **Migration 2026-09** — colonne `transport_ht` sur `commandes`, `commissionPct` à 10.
+- **Migration 2026-09-b** — `commercial_id` rendu nullable et colonne `reserve_le` sur `prospects`,
+  politiques RLS ouvrant le pool à toute l'équipe, quota par défaut à 5 (sans écraser une valeur
+  déjà réglée).
+- **Pool commun** — droits d'écriture par colonne sur `prospects` et fonctions `debut_semaine`,
+  `reservations_semaine`, `reserver_prospect`, `relacher_prospect`.
+
+Testé sur PostgreSQL 16 : installation neuve et migration d'une base existante, puis rejeu.
 
 ## Architecture
 

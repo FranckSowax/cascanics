@@ -72,8 +72,9 @@
   <!-- Modale import JSON -->
   <dialog id="dlg-import">
     <h2>Importer des prospects</h2>
-    <p class="d-sub">Collez le résultat JSON de votre recherche. Les établissements sont ajoutés
-      au portefeuille du commercial, au statut « À visiter ».</p>
+    <p class="d-sub">Collez le résultat JSON de votre recherche. Les établissements arrivent au statut
+      « À visiter », soit dans le <b>pool commun</b> où tous les commerciaux peuvent les réserver,
+      soit directement dans le portefeuille d'un commercial.</p>
 
     <div class="import-tools">
       <button class="btn sm" type="button" id="i-prompt">Copier le prompt de recherche</button>
@@ -84,15 +85,17 @@
     <form id="form-import" method="dialog">
       <div class="f-row">
         <div>
-          <label class="f" for="i-com">Commercial destinataire *</label>
-          <select id="i-com" required></select>
+          <label class="f" for="i-com">Destination</label>
+          <select id="i-com"></select>
         </div>
         <div>
           <label class="f" for="i-zone">Zone recherchée</label>
           <input id="i-zone" placeholder="Ex. Nouvelle-Aquitaine" />
         </div>
       </div>
-      <p class="hint">Une entrée peut viser un autre commercial via un champ « commercial » (e-mail ou nom).</p>
+      <p class="hint">Le pool commun est le mode conseillé : chaque commercial y pioche lui-même,
+        dans la limite de son quota hebdomadaire. Une entrée peut forcer un commercial précis via un
+        champ « commercial » (e-mail ou nom) — cette attribution nominative ne consomme pas de quota.</p>
 
       <label class="f" for="i-json">JSON des prospects</label>
       <textarea id="i-json" rows="8" spellcheck="false"
