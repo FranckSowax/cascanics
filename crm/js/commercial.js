@@ -295,8 +295,10 @@ function renderDetail(id) {
             <tr><td>Machine × ${c.qty}${c.remisePct ? ` (remise ${c.remisePct} %)` : ""}</td><td class="num">${fmtEUR2(t.htMachines)} HT</td></tr>
             ${t.transport ? `<tr><td>Transport &amp; livraison</td><td class="num">${fmtEUR2(t.transport)} HT</td></tr>` : ""}
             <tr><td>Total HT</td><td class="num">${fmtEUR2(t.ht)}</td></tr>
-            <tr><td>TVA ${load().settings.tauxTVA} %</td><td class="num">${fmtEUR2(t.tva)}</td></tr>
-            <tr><td><b>Total TTC</b></td><td class="num"><b>${fmtEUR2(t.ttc)}</b></td></tr>
+            ${+load().settings.tauxTVA
+              ? `<tr><td>TVA ${load().settings.tauxTVA} %</td><td class="num">${fmtEUR2(t.tva)}</td></tr>`
+              : `<tr><td>TVA non applicable (vendeur hors UE)</td><td class="num">0,00 €</td></tr>`}
+            <tr><td><b>Total ${+load().settings.tauxTVA ? "TTC" : "net"}</b></td><td class="num"><b>${fmtEUR2(t.ttc)}</b></td></tr>
             <tr><td style="color:var(--ambre-flux)">Acompte 50 % à la commande</td><td class="num">${fmtEUR2(t.acompte)}</td></tr>
             <tr><td style="color:var(--ambre-flux)">Solde 50 % avant départ</td><td class="num">${fmtEUR2(t.solde)}</td></tr>
           </table>

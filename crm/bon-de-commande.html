@@ -159,20 +159,22 @@
         <table class="totaux">
           ${c.remisePct ? `<tr><td>Remise commerciale (${c.remisePct} %)</td><td class="num">− ${fmtEUR2(t.brutHT - t.htMachines)}</td></tr>` : ""}
           <tr><td>Total HT</td><td class="num">${fmtEUR2(t.ht)}</td></tr>
-          <tr><td>TVA ${s.tauxTVA} %</td><td class="num">${fmtEUR2(t.tva)}</td></tr>
-          <tr class="tt"><td>Total TTC</td><td class="num">${fmtEUR2(t.ttc)}</td></tr>
+          ${+s.tauxTVA
+            ? `<tr><td>TVA ${s.tauxTVA} %</td><td class="num">${fmtEUR2(t.tva)}</td></tr>`
+            : `<tr><td>TVA non applicable — vendeur établi hors Union européenne</td><td class="num">0,00 €</td></tr>`}
+          <tr class="tt"><td>Total ${+s.tauxTVA ? "TTC" : "net à payer"}</td><td class="num">${fmtEUR2(t.ttc)}</td></tr>
         </table>
 
         <div class="paiement">
           <div class="pcard">
             <div class="p">Acompte — à la commande</div>
             <div class="m">${fmtEUR2(t.acompte)}</div>
-            <div class="d">50 % du montant TTC, dû à la signature du présent bon de commande.</div>
+            <div class="d">50 % du montant total, dû à la signature du présent bon de commande.</div>
           </div>
           <div class="pcard">
             <div class="p">Solde — avant expédition</div>
             <div class="m">${fmtEUR2(t.solde)}</div>
-            <div class="d">50 % du montant TTC, dû après validation du contrôle qualité et avant le départ de la machine.</div>
+            <div class="d">50 % du montant total, dû après validation du contrôle qualité et avant le départ de la machine.</div>
           </div>
         </div>
 
@@ -186,6 +188,7 @@
             <li><b>Contrôle qualité :</b> chaque machine est testée et validée avant expédition ; le solde n'est appelé qu'après cette validation.</li>
             <li><b>Garantie :</b> 12 mois pièces. SAV et pièces détachées en France. Machine et consommables conformes aux exigences européennes (CE).</li>
             <li>La commande devient ferme à la signature du client et à l'encaissement de l'acompte.</li>
+            ${+s.tauxTVA ? "" : `<li><b>Fiscalité :</b> vente réalisée par ${esc(s.societe.nom)}, société établie hors Union européenne — TVA non applicable sur le présent bon. D'éventuels droits et taxes à l'importation restent à la charge de l'acheteur, selon la réglementation en vigueur.</li>`}
           </ul>
         </div>
 

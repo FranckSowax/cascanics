@@ -28,7 +28,7 @@
 
   .page {
     width: 210mm; min-height: 297mm;
-    margin: 24px auto; padding: 16mm 15mm 14mm;
+    margin: 24px auto; padding: 14mm 15mm 11mm;
     background: #fff; position: relative;
     box-shadow: 0 8px 40px rgba(0,0,0,.18);
     display: flex; flex-direction: column;
@@ -130,11 +130,11 @@
   .reassure { display: flex; flex-wrap: wrap; gap: 2.5mm 6mm; padding: 3.5mm 5mm; border: 1px solid #BFE5D2; background: #F0FAF5; border-radius: 8px; font-size: 8.8pt; font-weight: 600; color: var(--marine); }
 
   /* ---------- page 3 : bon de commande ---------- */
-  .bc-title { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5mm; }
+  .bc-title { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3mm; }
   .bc-title h2 { font-size: 17pt; }
   .bc-title .num { font-size: 9pt; color: var(--gris); }
 
-  table.offre { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
+  table.offre { width: 100%; border-collapse: collapse; margin-bottom: 3mm; }
   table.offre th { font: 700 8.5pt "Space Grotesk", sans-serif; text-transform: uppercase; letter-spacing: .08em; color: #fff; background: var(--marine); padding: 2.8mm 4mm; text-align: left; }
   table.offre th:last-child, table.offre td:last-child { text-align: right; }
   table.offre td { padding: 2.4mm 4mm; border-bottom: 1px solid var(--ligne); font-size: 9.5pt; vertical-align: top; }
@@ -142,14 +142,14 @@
   table.offre .barre { text-decoration: line-through; color: var(--gris); }
   table.offre .remise { color: var(--vert); font-weight: 600; }
   table.offre tfoot td { border: 0; padding: 2mm 4mm; font-size: 9.5pt; }
-  table.offre tfoot .total td { font: 700 12pt "Space Grotesk", sans-serif; color: var(--marine); border-top: 2px solid var(--marine); padding-top: 2.6mm; }
+  table.offre tfoot .total td { font: 700 12pt "Space Grotesk", sans-serif; color: var(--marine); border-top: 2px solid var(--marine); padding-top: 2.6mm; white-space: nowrap; }
 
   .promo-note { border: 1.5px dashed var(--ambre); background: #FEF6EC; border-radius: 8px; padding: 2.6mm 4.5mm; font-size: 8.8pt; margin-bottom: 4mm; }
   .promo-note strong { color: #B4691E; }
 
   .bc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 6mm; margin-bottom: 4mm; }
   .bc-field { font-size: 8.2pt; color: var(--gris); }
-  .bc-field .line { border-bottom: 1px solid var(--encre); height: 6.5mm; margin-top: 1mm; }
+  .bc-field .line { border-bottom: 1px solid var(--encre); height: 5.5mm; margin-top: 1mm; }
   .bc-field.full { grid-column: 1 / -1; }
 
   .bc-options { display: flex; gap: 3mm 8mm; font-size: 9pt; margin-bottom: 4mm; flex-wrap: wrap; }
@@ -157,10 +157,10 @@
   .case i { width: 4mm; height: 4mm; border: 1.5px solid var(--encre); border-radius: 1mm; display: inline-block; }
 
   .sign-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
-  .sign-box { border: 1px solid var(--ligne); border-radius: 8px; padding: 3.5mm 4.5mm; min-height: 24mm; font-size: 8.4pt; color: var(--gris); }
+  .sign-box { border: 1px solid var(--ligne); border-radius: 8px; padding: 3mm 4.5mm; min-height: 20mm; font-size: 8.4pt; color: var(--gris); }
   .sign-box b { color: var(--encre); display: block; margin-bottom: 1mm; font-size: 9pt; }
 
-  .cgv { font-size: 7pt; color: var(--gris); margin-top: 3mm; line-height: 1.4; }
+  .cgv { font-size: 6.6pt; color: var(--gris); margin-top: 2.5mm; line-height: 1.38; }
 </style>
 </head>
 <body>
@@ -195,12 +195,12 @@
     <div class="prix">
       <div class="old">5 500 € HT</div>
       <div class="new">4 800 € HT</div>
-      <div class="ht">soit 700 € d'économie — TVA 20 % en sus</div>
+      <div class="ht">soit 700 € d'économie — prix net, TVA non applicable (vendeur hors UE)</div>
     </div>
   </div>
 
   <div class="doc-footer">
-    <span>Cascanics — contact@cascanics.com — cascanics.com</span>
+    <span>Cascanics, une marque de Twinsk Company Ltd (Hong Kong) — contact@cascanics.com — cascanics.com</span>
     <span>Page 1/3</span>
   </div>
 </section>
@@ -255,7 +255,7 @@
     <div>
       <p class="kicker">Mise en place</p>
       <ol class="etapes">
-        <li><strong>Commande</strong> — bon de commande signé, acompte de 30 %.</li>
+        <li><strong>Commande</strong> — bon de commande signé, acompte de 50 %.</li>
         <li><strong>Préparation du site</strong> — moins d'1 m² au sol, une prise 230 V standard, aucune arrivée d'eau. Intérieur ou extérieur abrité.</li>
         <li><strong>Installation &amp; formation</strong> — livraison, mise en service et prise en main par nos techniciens (incluses dans l'offre).</li>
         <li><strong>Exploitation</strong> — la machine encaisse seule ; vous suivez le CA en temps réel. Revenus dès la première semaine, ROI typique en quelques mois.</li>
@@ -271,7 +271,7 @@
   </div>
 
   <div class="doc-footer">
-    <span>Cascanics — contact@cascanics.com — cascanics.com</span>
+    <span>Cascanics, une marque de Twinsk Company Ltd (Hong Kong) — contact@cascanics.com — cascanics.com</span>
     <span>Page 2/3</span>
   </div>
 </section>
@@ -287,6 +287,9 @@
     <h2>Bon de commande</h2>
     <span class="num">Offre de lancement — validité : jour de la présentation</span>
   </div>
+  <p style="font-size:8.4pt; color:var(--gris); margin:-2mm 0 4mm">
+    <b style="color:var(--marine)">Vendeur :</b> Twinsk Company Ltd — société de droit hongkongais, Hong Kong SAR.
+    Cascanics est une marque de Twinsk Company Ltd.</p>
 
   <table class="offre">
     <thead>
@@ -315,8 +318,8 @@
     </tbody>
     <tfoot>
       <tr><td colspan="2">Total HT après remise</td><td style="text-align:right"><b>4 800,00 €</b></td></tr>
-      <tr><td colspan="2">TVA 20 %</td><td style="text-align:right">960,00 €</td></tr>
-      <tr class="total"><td colspan="2">Total TTC</td><td style="text-align:right">5 760,00 €</td></tr>
+      <tr><td colspan="2">TVA non applicable — vente par Twinsk Company Ltd, société établie hors Union européenne</td><td style="text-align:right">0,00 €</td></tr>
+      <tr class="total"><td colspan="2">Total net à payer</td><td style="text-align:right">4 800,00 €</td></tr>
     </tfoot>
   </table>
 
@@ -336,7 +339,7 @@
 
   <div class="bc-options">
     <span><b>Règlement :</b></span>
-    <span class="case"><i></i> Acompte 30 % à la commande (1 728 € TTC), solde à l'installation</span>
+    <span class="case"><i></i> Acompte 50 % à la commande (2 400 €), solde 50 % avant expédition</span>
     <span class="case"><i></i> Comptant à la commande</span>
     <span class="case"><i></i> Financement / leasing (nous consulter)</span>
   </div>
@@ -347,15 +350,15 @@
       Date, mention « Bon pour accord », signature et cachet :
     </div>
     <div class="sign-box">
-      <b>Cascanics</b>
+      <b>Twinsk Company Ltd — Cascanics</b>
       Date et signature :
     </div>
   </div>
 
-  <p class="cgv">Conditions : matériel garanti 12 mois pièces et main-d'œuvre (hors consommables et usure normale). Délai indicatif de livraison et d'installation : 4 à 6 semaines à compter de l'encaissement de l'acompte. Le site d'accueil fournit une alimentation 230 V et un emplacement conforme aux prérequis communiqués. Réserve de propriété jusqu'au paiement intégral. Les consommables (liquide de cycle, fragrances) sont disponibles auprès de Cascanics. Machine certifiée CE, liquide conforme aux exigences européennes. Données du présent bon utilisées uniquement pour le traitement de la commande (RGPD — droit d'accès et de rectification : contact@cascanics.com).</p>
+  <p class="cgv">Conditions : vente réalisée par Twinsk Company Ltd, société de droit hongkongais établie hors Union européenne — TVA non applicable sur le présent bon ; d'éventuels droits et taxes à l'importation restent à la charge de l'acheteur, selon la réglementation en vigueur. Matériel garanti 12 mois pièces et main-d'œuvre (hors consommables et usure normale). Délai indicatif de livraison et d'installation : 4 à 6 semaines à compter de l'encaissement de l'acompte. Le site d'accueil fournit une alimentation 230 V et un emplacement conforme aux prérequis communiqués. Réserve de propriété jusqu'au paiement intégral. Les consommables (liquide de cycle, fragrances) sont disponibles auprès de Cascanics. Machine certifiée CE, liquide conforme aux exigences européennes. Données du présent bon utilisées uniquement pour le traitement de la commande (RGPD — droit d'accès et de rectification : contact@cascanics.com).</p>
 
   <div class="doc-footer">
-    <span>Cascanics — contact@cascanics.com — cascanics.com</span>
+    <span>Cascanics, une marque de Twinsk Company Ltd (Hong Kong) — contact@cascanics.com — cascanics.com</span>
     <span>Page 3/3</span>
   </div>
 </section>

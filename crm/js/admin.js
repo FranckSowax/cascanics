@@ -330,7 +330,7 @@ function renderReglages() {
       <input id="s-adresse" value="${esc(s.societe.adresse)}" />
       <div class="f-row">
         <div><label class="f" for="s-email">E-mail</label><input id="s-email" value="${esc(s.societe.email)}" /></div>
-        <div><label class="f" for="s-siret">SIRET</label><input id="s-siret" value="${esc(s.societe.siret)}" /></div>
+        <div><label class="f" for="s-siret">Immatriculation (SIRET / n° CR)</label><input id="s-siret" value="${esc(s.societe.siret)}" /></div>
       </div>
       <div class="d-actions" style="justify-content:flex-start">
         <button class="btn primary" id="save-settings">Enregistrer les réglages</button>
