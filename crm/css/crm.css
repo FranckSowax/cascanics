@@ -210,6 +210,13 @@ dialog h2 { font-size: 17px; margin-bottom: 6px; }
 dialog .d-sub { font-size: 13px; color: var(--texte-2); margin-bottom: 8px; }
 .d-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
+/* Modale carte + itinéraire */
+#dlg-carte { width: min(680px, 94vw); }
+.carte-frame {
+  width: 100%; aspect-ratio: 16 / 10; border: 0;
+  border-radius: 10px; margin-top: 12px; background: #E9ECF0;
+}
+
 /* ---------- Import JSON ---------- */
 .import-tools { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 4px; }
 dialog textarea#i-json {

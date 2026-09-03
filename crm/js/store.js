@@ -415,6 +415,15 @@ export async function relacherProspect(id) {
   return js;
 }
 
+/* Retire définitivement un prospect (la politique RLS réserve la suppression à l'admin). */
+export async function supprimerProspect(id) {
+  const { error } = await supa.from("prospects").delete().eq("id", id);
+  if (error) fail(error, "Suppression du prospect");
+  const d = load();
+  const i = d.prospects.findIndex((p) => p.id === id);
+  if (i >= 0) d.prospects.splice(i, 1);
+}
+
 /* ---------- Mutations : réglages & équipe (admin) ---------- */
 export async function saveSettings(data) {
   const { error } = await supa.from("settings").update({ data }).eq("id", 1);

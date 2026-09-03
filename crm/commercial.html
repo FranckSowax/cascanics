@@ -96,6 +96,22 @@
     </form>
   </dialog>
 
+  <!-- Modale carte + itinéraire -->
+  <dialog id="dlg-carte">
+    <h2 id="carte-titre">Itinéraire</h2>
+    <p class="d-sub"><span id="carte-adresse"></span> ·
+      <a id="carte-gmaps-voir" target="_blank" rel="noopener" style="color:var(--cyan-brume, #7FD8E8)">Ouvrir dans Google Maps</a></p>
+    <iframe id="carte-frame" class="carte-frame" loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade" title="Carte du prospect"></iframe>
+    <div class="d-actions" style="justify-content:space-between; flex-wrap:wrap">
+      <span style="display:flex; gap:10px; flex-wrap:wrap">
+        <a id="carte-maps" class="btn primary" target="_blank" rel="noopener">Itinéraire Google Maps</a>
+        <a id="carte-waze" class="btn" target="_blank" rel="noopener">Itinéraire Waze</a>
+      </span>
+      <button class="btn ghost" id="carte-fermer">Fermer</button>
+    </div>
+  </dialog>
+
   <script type="module" src="js/commercial.js"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@ import {
   analyserImport, importerProspects,
   dateLivraisonEstimee, kpisCommercial,
   prospectsPool, relacherProspect, quotaHebdo, reservationsSemaine, debutSemaine,
+  supprimerProspect, patchProspect, STATUTS_PROSPECT,
 } from "./store.js";
 import { boot, topbar, toast, tente, badgeCommande, badgeProspect, railHTML, esc } from "./ui.js";
 import { promptProspection } from "./prompt-prospection.js";
@@ -241,14 +242,15 @@ function renderPropositions() {
       <h2>Pool commun — disponibles <span class="count">${pool.length}</span></h2>
       <p class="hint">Visibles par tous les commerciaux, réservables dans la limite du quota hebdomadaire.</p>
       <table>
-        <thead><tr><th>Entreprise</th><th>Type</th><th>Ville</th><th>Contact</th><th>Ajouté le</th></tr></thead>
+        <thead><tr><th>Entreprise</th><th>Type</th><th>Ville</th><th>Contact</th><th>Ajouté le</th><th></th></tr></thead>
         <tbody>${pool.slice(0, 100).map((p) => `<tr>
           <td><b>${esc(p.entreprise)}</b></td>
           <td class="muted">${esc(p.type)}</td>
           <td>${esc(p.ville)}</td>
           <td class="muted">${esc(p.contact)}${p.tel ? " · " + esc(p.tel) : ""}</td>
           <td class="muted">${fmtDate(p.createdAt)}</td>
-        </tr>`).join("") || `<tr><td colspan="5"><p class="empty">Pool vide. Importez une liste en la versant au pool commun.</p></td></tr>`}</tbody>
+          <td><button class="btn sm ghost" data-suppr="${p.id}" title="Retirer définitivement ce prospect du pool">Retirer</button></td>
+        </tr>`).join("") || `<tr><td colspan="6"><p class="empty">Pool vide. Importez une liste en la versant au pool commun.</p></td></tr>`}</tbody>
       </table>
       ${pool.length > 100 ? `<p class="hint" style="margin-top:10px">100 plus récents affichés sur ${pool.length}.</p>` : ""}
     </section>
@@ -265,7 +267,9 @@ function renderPropositions() {
           <td class="muted">${esc(nomCommercial(p.commercialId))}</td>
           <td class="muted">${p.reserveLe ? `Réservé le ${fmtDate(p.reserveLe)}`
             : p.source === "proposition_admin" ? "Confié par l'admin" : "Ajouté par le commercial"}</td>
-          <td>${badgeProspect(p.statut)}</td>
+          <td><select data-statut="${p.id}" title="Corriger le statut de ce prospect" style="font-size:12px; width:auto">
+            ${STATUTS_PROSPECT.map((s) => `<option value="${s.id}" ${s.id === p.statut ? "selected" : ""}>${s.label}</option>`).join("")}
+          </select></td>
           <td class="muted">${p.notes.length ? esc(p.notes[p.notes.length - 1].t) : "—"}</td>
           <td>${p.statut === "a_visiter" ? `<button class="btn sm ghost" data-repool="${p.id}" title="Le remettre dans le pool commun">Remettre au pool</button>` : ""}</td>
         </tr>`).join("") || `<tr><td colspan="8"><p class="empty">Aucun prospect pris en charge pour le moment.</p></td></tr>`}</tbody>
@@ -297,6 +301,20 @@ function renderPropositions() {
   main.querySelectorAll("[data-repool]").forEach((b) =>
     b.addEventListener("click", async () => {
       await tente(() => relacherProspect(b.dataset.repool), "Prospect remis dans le pool commun");
+      render();
+    })
+  );
+  main.querySelectorAll("[data-suppr]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      const p = load().prospects.find((x) => x.id === b.dataset.suppr);
+      if (!confirm(`Retirer définitivement « ${p.entreprise} » du pool ? Cette suppression est irréversible.`)) return;
+      await tente(() => supprimerProspect(p.id), "Prospect retiré du pool");
+      render();
+    })
+  );
+  main.querySelectorAll("[data-statut]").forEach((sel) =>
+    sel.addEventListener("change", async () => {
+      await tente(() => patchProspect(sel.dataset.statut, { statut: sel.value }), "Statut mis à jour");
       render();
     })
   );

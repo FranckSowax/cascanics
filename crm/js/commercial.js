@@ -88,6 +88,52 @@ function renderDash() {
   bindPropButtons();
 }
 
+/* ---------- Carte + itinéraire (Google Maps / Waze) ---------- */
+/* L'aperçu utilise OpenStreetMap (géocodage Nominatim) : pas de clé API et pas
+   d'écran de consentement Google qui laisserait une iframe vide. Les boutons
+   d'itinéraire ouvrent, eux, directement l'app Google Maps ou Waze. */
+const adresseProspect = (p) => [p.adresse, p.ville].filter(Boolean).join(", ");
+const geoCache = new Map();
+
+async function ouvrirCarte(id) {
+  const p = load().prospects.find((x) => x.id === id);
+  if (!p) return;
+  const adr = adresseProspect(p);
+  // Entreprise + adresse : géocodage plus fiable qu'une adresse seule.
+  const q = encodeURIComponent([p.entreprise, adr].filter(Boolean).join(", "));
+  document.getElementById("carte-titre").textContent = p.entreprise;
+  document.getElementById("carte-adresse").textContent = adr || "Adresse non renseignée — recherche par le nom de l'établissement.";
+  document.getElementById("carte-maps").href = `https://www.google.com/maps/dir/?api=1&destination=${q}`;
+  document.getElementById("carte-waze").href = `https://waze.com/ul?q=${q}&navigate=yes`;
+  document.getElementById("carte-gmaps-voir").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+  const frame = document.getElementById("carte-frame");
+  frame.src = "about:blank";
+  document.getElementById("dlg-carte").showModal();
+  try {
+    let pos = geoCache.get(p.id);
+    if (!pos) {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(adr || p.entreprise + " " + (p.ville || ""))}`);
+      const js = await r.json();
+      if (js[0]) { pos = { lat: +js[0].lat, lon: +js[0].lon }; geoCache.set(p.id, pos); }
+    }
+    if (pos) {
+      const d = 0.008;
+      frame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${pos.lon - d},${pos.lat - d},${pos.lon + d},${pos.lat + d}&layer=mapnik&marker=${pos.lat},${pos.lon}`;
+    }
+  } catch {
+    // L'aperçu est un confort : les boutons d'itinéraire restent fonctionnels.
+  }
+}
+document.getElementById("carte-fermer").addEventListener("click", () => {
+  document.getElementById("carte-frame").src = "about:blank";
+  document.getElementById("dlg-carte").close();
+});
+function bindCartes() {
+  main.querySelectorAll("[data-carte]").forEach((b) =>
+    b.addEventListener("click", () => ouvrirCarte(b.dataset.carte))
+  );
+}
+
 /* ---------- Pool commun : prospects Cascanics à réserver ---------- */
 function renderPool() {
   const restant = quotaRestant(me.id);
@@ -134,6 +180,7 @@ function renderPool() {
             <td class="muted">${esc(p.adresse)}</td>
             <td class="muted">${esc(p.contact)}${p.tel ? "<br />" + esc(p.tel) : ""}</td>
             <td style="white-space:nowrap">
+              <button class="btn sm ghost" data-carte="${p.id}" title="Voir sur la carte et lancer l'itinéraire">Carte</button>
               <button class="btn sm primary" data-reserve="${p.id}" ${restant ? "" : "disabled"}>Réserver</button>
             </td>
           </tr>`).join("") || `<tr><td colspan="6"><p class="empty">Le pool est vide. L'administration l'alimente depuis son espace.</p></td></tr>`}
@@ -164,6 +211,7 @@ function renderPool() {
       else { b.disabled = false; render(); }
     })
   );
+  bindCartes();
 }
 
 function renderProspects() {
@@ -188,6 +236,7 @@ function renderProspects() {
               ${STATUTS_PROSPECT.map((s) => `<option value="${s.id}" ${s.id === p.statut ? "selected" : ""}>${s.label}</option>`).join("")}
             </select></td>
             <td style="white-space:nowrap">
+              <button class="btn sm ghost" data-carte="${p.id}" title="Voir sur la carte et lancer l'itinéraire">Carte</button>
               <button class="btn sm ghost" data-note="${p.id}">+ Note</button>
               <button class="btn sm" data-bc="${p.id}">Bon de commande</button>
               ${estRelachable(p) ? `<button class="btn sm ghost" data-relache="${p.id}" title="Le remettre à disposition de l'équipe">Rendre au pool</button>` : ""}
@@ -226,6 +275,7 @@ function renderProspects() {
       render();
     })
   );
+  bindCartes();
 }
 
 function renderCommandes() {
