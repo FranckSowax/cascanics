@@ -21,6 +21,7 @@ export function topbar(user, tabs, sub) {
     </a>
     <nav>${tabs.map((t) => `<button data-tab="${t.id}">${t.label}</button>`).join("")}</nav>
     <div class="who"><span><b>${user.nom}</b>${user.zone ? " · " + user.zone : ""}</span>
+      <a class="btn ghost sm" href="guide.html" target="_blank" rel="noopener">Guide</a>
       <button class="btn ghost sm" id="logout">Se déconnecter</button></div>`;
   el.querySelector("#logout").addEventListener("click", async () => {
     await logout();

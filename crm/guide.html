@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide du commercial — CRM Cascanics</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --marine: #12365A; --bleu: #2E6DB4; --cyan: #1F8FA8; --ambre: #C97A2B;
+    --vert: #2FA872; --rouge: #C0392B;
+    --encre: #16191E; --gris: #5A6472; --ligne: #D8DEE6; --fond: #F4F6F8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Inter", system-ui, sans-serif; color: var(--encre); background: #E9ECF0; font-size: 15px; line-height: 1.65; }
+  h1, h2, h3 { font-family: "Space Grotesk", sans-serif; color: var(--marine); line-height: 1.2; }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 20px 60px; }
+  .sheet { background: #fff; border-radius: 14px; padding: clamp(24px, 5vw, 48px); box-shadow: 0 8px 40px rgba(0,0,0,.10); }
+
+  .head { display: flex; align-items: center; gap: 16px; padding-bottom: 20px; border-bottom: 2px solid var(--marine); margin-bottom: 8px; flex-wrap: wrap; }
+  .head img { height: 52px; }
+  .head h1 { font-size: clamp(22px, 4vw, 30px); }
+  .head .sub { color: var(--gris); font-size: 14px; margin-top: 2px; }
+
+  .toc { background: var(--fond); border-radius: 10px; padding: 14px 20px; margin: 20px 0 28px; font-size: 14px; }
+  .toc a { color: var(--bleu); text-decoration: none; font-weight: 600; }
+  .toc a:hover { text-decoration: underline; }
+  .toc li { margin: 3px 0 3px 18px; }
+
+  section { margin-bottom: 36px; }
+  h2 { font-size: 21px; margin-bottom: 12px; padding-top: 8px; }
+  h2 .n {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--marine); color: #fff; font-size: 15px;
+    margin-right: 10px; vertical-align: -4px;
+  }
+  h3 { font-size: 16px; margin: 18px 0 8px; }
+  p { margin-bottom: 10px; }
+  ul, ol { margin: 0 0 10px 22px; }
+  li { margin-bottom: 5px; }
+  b { color: var(--marine); }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 14px; }
+  th { font-family: "Space Grotesk", sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #fff; background: var(--marine); padding: 8px 12px; text-align: left; }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--ligne); vertical-align: top; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  tr.total td { font-weight: 700; color: var(--marine); border-top: 2px solid var(--marine); }
+
+  .exemple {
+    border-left: 4px solid var(--bleu); background: #F0F5FB;
+    border-radius: 0 10px 10px 0; padding: 14px 18px; margin: 14px 0;
+    font-size: 14px;
+  }
+  .exemple .t { font: 700 12px "Space Grotesk", sans-serif; text-transform: uppercase; letter-spacing: .1em; color: var(--bleu); margin-bottom: 6px; }
+
+  .attention {
+    border-left: 4px solid var(--ambre); background: #FDF4EA;
+    border-radius: 0 10px 10px 0; padding: 14px 18px; margin: 14px 0; font-size: 14px;
+  }
+  .attention .t { font: 700 12px "Space Grotesk", sans-serif; text-transform: uppercase; letter-spacing: .1em; color: var(--ambre); margin-bottom: 6px; }
+
+  .astuce {
+    border-left: 4px solid var(--vert); background: #EFF9F4;
+    border-radius: 0 10px 10px 0; padding: 14px 18px; margin: 14px 0; font-size: 14px;
+  }
+  .astuce .t { font: 700 12px "Space Grotesk", sans-serif; text-transform: uppercase; letter-spacing: .1em; color: var(--vert); margin-bottom: 6px; }
+
+  .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 999px;
+    font: 600 12px "Inter", sans-serif; white-space: nowrap;
+  }
+  .b-gris  { background: #E8EBEF; color: #4A5560; }
+  .b-bleu  { background: #DEEAF8; color: #1D5A9E; }
+  .b-cyan  { background: #DDF1F6; color: #146B80; }
+  .b-ambre { background: #FBEEDD; color: #A56218; }
+  .b-vert  { background: #DFF4E9; color: #1E7A50; }
+  .b-rouge { background: #F8E3E0; color: #A33025; }
+
+  .fleche { color: var(--gris); padding: 0 4px; }
+  .rail { line-height: 2.3; }
+
+  .etape-qui { font-size: 12px; color: var(--gris); }
+
+  kbd {
+    font: 600 13px "Inter", sans-serif; background: var(--fond);
+    border: 1px solid var(--ligne); border-bottom-width: 2px;
+    border-radius: 6px; padding: 1px 8px; white-space: nowrap;
+  }
+
+  .print-hint {
+    max-width: 860px; margin: 16px auto 0; padding: 10px 20px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    background: #fff; border: 1px solid var(--ligne); border-radius: 10px;
+    font-size: 13px; color: var(--gris);
+  }
+  .print-hint button { font: 700 14px "Space Grotesk", sans-serif; color: #fff; background: var(--bleu); border: 0; border-radius: 8px; padding: 9px 16px; cursor: pointer; }
+
+  .foot { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--ligne); font-size: 12px; color: var(--gris); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+  @media print {
+    body { background: #fff; font-size: 11pt; }
+    .wrap { max-width: none; padding: 0; }
+    .sheet { box-shadow: none; border-radius: 0; padding: 0; }
+    .no-print { display: none !important; }
+    section { break-inside: avoid-page; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { size: A4; margin: 14mm 13mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="print-hint no-print">
+  <span>Ce guide s'imprime proprement : Imprimer → « Enregistrer en PDF » → cocher « Graphiques d'arrière-plan ».</span>
+  <button onclick="window.print()">Imprimer / PDF</button>
+</div>
+
+<div class="wrap"><div class="sheet">
+
+  <div class="head">
+    <img src="../assets/logo-emblem.png" alt="Cascanics">
+    <div>
+      <h1>Guide du commercial</h1>
+      <div class="sub">Votre plateforme Cascanics, de la prospection à la commission — en 10 minutes de lecture.</div>
+    </div>
+  </div>
+
+  <ul class="toc no-print">
+    <li><a href="#connexion">1. Se connecter</a></li>
+    <li><a href="#semaine">2. Votre semaine en 5 gestes</a></li>
+    <li><a href="#pool">3. Le pool « Prospects Cascanics »</a></li>
+    <li><a href="#prospects">4. Mes prospects : visites et statuts</a></li>
+    <li><a href="#bc">5. Le bon de commande</a></li>
+    <li><a href="#suivi">6. Suivre une commande jusqu'à la livraison</a></li>
+    <li><a href="#commission">7. Votre commission, avec les chiffres</a></li>
+    <li><a href="#erreurs">8. Les 5 erreurs à éviter</a></li>
+  </ul>
+
+  <!-- ================================================================ -->
+  <section id="connexion">
+    <h2><span class="n">1</span>Se connecter</h2>
+    <p>Ouvrez <b>cascanics-production.up.railway.app/crm/</b> et connectez-vous avec l'e-mail et le
+    mot de passe fournis par l'administration. Ça marche sur ordinateur, tablette et téléphone.</p>
+    <p>Votre espace a 6 onglets :</p>
+    <table>
+      <tr><th>Onglet</th><th>À quoi il sert</th></tr>
+      <tr><td><b>Tableau de bord</b></td><td>Vos chiffres du moment : CA, commission, pipeline, quota de réservations.</td></tr>
+      <tr><td><b>Prospects Cascanics</b></td><td>Le fichier commun de prospects fourni par Cascanics. Vous y réservez vos cibles.</td></tr>
+      <tr><td><b>Mes prospects</b></td><td>Votre portefeuille : vos visites, vos notes, vos statuts.</td></tr>
+      <tr><td><b>Commandes</b></td><td>Vos bons de commande et leur avancement jusqu'à la livraison.</td></tr>
+      <tr><td><b>Propositions</b></td><td>Les zones ou cibles que l'administration vous propose.</td></tr>
+      <tr><td><b>Argumentaire</b></td><td>Les arguments de vente, les prix et les conditions, toujours à jour.</td></tr>
+    </table>
+    <div class="astuce"><div class="t">Astuce</div>
+      Mot de passe oublié ? Demandez à l'administration de vous en générer un nouveau. Il n'y a pas de
+      « mot de passe oublié » automatique.</div>
+  </section>
+
+  <!-- ================================================================ -->
+  <section id="semaine">
+    <h2><span class="n">2</span>Votre semaine en 5 gestes</h2>
+    <ol>
+      <li><b>Lundi :</b> réservez vos prospects de la semaine dans <b>Prospects Cascanics</b> (5 max — le compteur repart à zéro chaque lundi).</li>
+      <li><b>Sur le terrain :</b> après chaque visite, changez le statut du prospect et ajoutez une note (30 secondes, depuis le téléphone).</li>
+      <li><b>Client chaud :</b> créez le bon de commande directement depuis sa fiche, faites-le signer.</li>
+      <li><b>Marquez l'avancement :</b> « BC envoyé » quand il part, « Signé client » quand il revient signé. Le reste, c'est l'administration qui le valide.</li>
+      <li><b>Vendredi :</b> un œil au tableau de bord — pipeline, conversion, commission — et rendez au pool les prospects que vous ne visiterez pas.</li>
+    </ol>
+  </section>
+
+  <!-- ================================================================ -->
+  <section id="pool">
+    <h2><span class="n">3</span>Le pool « Prospects Cascanics »</h2>
+    <p>Cascanics alimente un <b>fichier commun de prospects qualifiés</b> : concessions, stations-service,
+    salles de sport, loueurs… Tout le monde voit la même liste. <b>Premier arrivé, premier servi.</b></p>
+    <h3>Les 3 règles</h3>
+    <ul>
+      <li><b>Réserver</b> : cliquez sur <kbd>Réserver</kbd> → le prospect passe dans « Mes prospects » et disparaît de la liste des autres commerciaux. Il est à vous.</li>
+      <li><b>Quota</b> : <b>5 réservations par semaine</b> (du lundi au dimanche). Le compteur est affiché en haut de l'onglet et sur votre tableau de bord.</li>
+      <li><b>Rendre au pool</b> : tant que vous n'avez pas visité un prospect (statut « À visiter », pas de BC), le bouton <kbd>Rendre au pool</kbd> le remet à disposition de l'équipe — et <b>vous récupérez une réservation</b>.</li>
+    </ul>
+    <div class="exemple"><div class="t">Exemple</div>
+      Lundi matin, Karim réserve 4 prospects à Bordeaux : il lui reste <b>1 / 5</b>.
+      Mercredi, il voit que « Moto Center 33 » a déjà été démarché par un concurrent : il le rend au pool
+      → il repasse à <b>2 / 5</b> et réserve à la place une station-service à Mérignac.
+      Jeudi, un collègue tente de réserver la même station : trop tard, elle n'apparaît plus chez lui.</div>
+    <div class="attention"><div class="t">Attention</div>
+      Le quota est appliqué par le serveur : inutile d'essayer d'ouvrir deux onglets pour réserver plus,
+      la 6ᵉ réservation est refusée. Les prospects que l'administration vous attribue directement,
+      eux, ne comptent pas dans le quota.</div>
+  </section>
+
+  <!-- ================================================================ -->
+  <section id="prospects">
+    <h2><span class="n">4</span>Mes prospects : visites et statuts</h2>
+    <p>Chaque prospect suit un parcours simple. Mettez le statut à jour <b>le jour même</b> de la visite :</p>
+    <p class="rail">
+      <span class="badge b-gris">À visiter</span><span class="fleche">→</span>
+      <span class="badge b-bleu">Visité</span><span class="fleche">→</span>
+      <span class="badge b-cyan">Intéressé</span><span class="fleche">→</span>
+      <span class="badge b-ambre">BC envoyé</span><span class="fleche">→</span>
+      <span class="badge b-vert">Client</span>
+      &nbsp;&nbsp;(ou <span class="badge b-rouge">Perdu</span> à tout moment)
+    </p>
+    <p>Vous pouvez aussi ajouter vous-même un prospect trouvé sur le terrain avec
+    <kbd>+ Nouveau prospect</kbd> — il ne compte pas dans votre quota.</p>
+    <h3>La note qui vaut de l'or</h3>
+    <p>Après chaque contact, cliquez <kbd>+ Note</kbd>. La dernière note s'affiche sous le nom du
+    prospect — pour vous, et pour l'administration qui suit votre pipeline.</p>
+    <div class="exemple"><div class="t">Bonne note ✔</div>
+      « Vu M. Diallo (gérant). Très intéressé pour l'entrée du magasin. Attend le passage de son
+      comptable — <b>rappeler mardi 14 h</b>. Objection prix : lui montrer le simulateur de revenus. »</div>
+    <div class="attention"><div class="t">Note inutile ✘</div>
+      « Passé. À revoir. » — dans trois semaines, vous ne saurez plus ni qui, ni quoi, ni quand.</div>
+  </section>
+
+  <!-- ================================================================ -->
+  <section id="bc">
+    <h2><span class="n">5</span>Le bon de commande</h2>
+    <p>Depuis la fiche d'un prospect, cliquez <kbd>Bon de commande</kbd>. Vous renseignez 3 choses :</p>
+    <table>
+      <tr><th>Champ</th><th>Règle</th></tr>
+      <tr><td><b>Quantité</b></td><td>Nombre de machines. Le stock disponible s'affiche ; hors stock, le délai de fabrication est annoncé automatiquement sur le BC.</td></tr>
+      <tr><td><b>Remise (%)</b></td><td>Jusqu'à <b>15 % maximum</b>, à votre main. Au-delà, voyez avec l'administration.</td></tr>
+      <tr><td><b>Transport (€ HT)</b></td><td>Le coût de livraison facturé au client (machine en caisse bois, 145 kg). Il s'ajoute au total <b>mais n'entre pas dans votre commission</b>.</td></tr>
+    </table>
+    <p>Le total, l'acompte et <b>votre commission sur cette commande</b> se calculent en direct pendant
+    la saisie. Le BC se génère en A4 imprimable : bouton <kbd>Imprimer / PDF</kbd>, ou envoi par
+    e-mail depuis le détail de la commande.</p>
+    <p><b>Conditions de paiement</b> (déjà imprimées sur le BC) : <b>acompte 50 %</b> à la signature,
+    <b>solde 50 %</b> après contrôle qualité, avant expédition. Les prix s'affichent nets :
+    le vendeur est Twinsk Company Ltd (hors UE), la TVA française ne s'applique pas sur le bon.</p>
+    <div class="exemple"><div class="t">Exemple de saisie</div>
+      Mme Rossi (Station Total Mérignac) commande 1 machine avec 10 % de remise et 300 € de transport :
+      <table>
+        <tr><td>Machine — 5 000 € HT, remise 10 %</td><td class="num">4 500,00 €</td></tr>
+        <tr><td>Transport &amp; livraison</td><td class="num">300,00 €</td></tr>
+        <tr class="total"><td>Total net à payer</td><td class="num">4 800,00 €</td></tr>
+        <tr><td>Acompte 50 % à la signature</td><td class="num">2 400,00 €</td></tr>
+        <tr><td>Solde 50 % avant expédition</td><td class="num">2 400,00 €</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================================================================ -->
+  <section id="suivi">
+    <h2><span class="n">6</span>Suivre une commande jusqu'à la livraison</h2>
+    <p>Chaque commande avance sur un rail de 9 étapes. <b>Vous gérez les 3 premières, l'administration
+    valide les 6 suivantes</b> (paiements, production, qualité, expédition) :</p>
+    <table>
+      <tr><th>Étape</th><th>Qui la valide</th></tr>
+      <tr><td><span class="badge b-gris">Brouillon</span> → <span class="badge b-bleu">BC envoyé</span> → <span class="badge b-cyan">Signé client</span></td><td class="etape-qui"><b>Vous</b> — bouton « Marquer » dans le détail de la commande</td></tr>
+      <tr><td><span class="badge b-ambre">Acompte 50 % reçu</span> → <span class="badge b-gris">En production</span> → <span class="badge b-gris">Contrôle qualité OK</span> → <span class="badge b-ambre">Solde 50 % reçu</span> → <span class="badge b-bleu">Expédiée</span> → <span class="badge b-vert">Livrée</span></td><td class="etape-qui"><b>Administration</b> — vous suivez l'avancement en temps réel</td></tr>
+    </table>
+    <div class="exemple"><div class="t">Exemple</div>
+      Lundi : Mme Rossi signe → vous marquez <b>« Signé client »</b>.
+      Mardi : son virement d'acompte arrive → l'administration marque « Acompte reçu », la machine part
+      en production (stock ou fabrication ~25 jours). Trois semaines plus tard : contrôle qualité OK,
+      solde appelé, encaissé, machine expédiée puis livrée. Votre onglet Commandes affiche chaque étape
+      avec sa date — vous savez toujours quoi répondre au client qui appelle.</div>
+  </section>
+
+  <!-- ================================================================ -->
+  <section id="commission">
+    <h2><span class="n">7</span>Votre commission, avec les chiffres</h2>
+    <p>La règle tient en une phrase : <b>10 % du montant HT des machines encaissé</b> — après remise,
+    <b>hors transport</b> — dès que la commande est <b>soldée</b> (acompte + solde reçus).</p>
+    <div class="exemple"><div class="t">Exemple — la commande de Mme Rossi</div>
+      <table>
+        <tr><td>Machines HT après remise (base de commission)</td><td class="num">4 500,00 €</td></tr>
+        <tr><td>Transport (exclu de la commission)</td><td class="num"><s>300,00 €</s></td></tr>
+        <tr class="total"><td>Votre commission (10 %)</td><td class="num">450,00 €</td></tr>
+      </table>
+      Elle apparaît dans « Commission acquise » sur votre tableau de bord dès que l'administration
+      marque « Solde 50 % reçu ». Avant ça, la commande compte dans votre « CA signé » et votre pipeline.</div>
+    <div class="astuce"><div class="t">À retenir</div>
+      La remise sort de votre poche à 10 % près : 15 % de remise sur une machine = 75 € de commission en
+      moins. Défendez le prix avec l'argumentaire (ROI, revenus dès la première semaine) avant de lâcher
+      des points de remise.</div>
+  </section>
+
+  <!-- ================================================================ -->
+  <section id="erreurs">
+    <h2><span class="n">8</span>Les 5 erreurs à éviter</h2>
+    <ol>
+      <li><b>Réserver 5 prospects et n'en visiter aucun.</b> Rendez au pool ce que vous ne ferez pas — un prospect gelé chez vous, c'est une vente perdue pour l'équipe.</li>
+      <li><b>Oublier de marquer « Signé client ».</b> Tant que ce n'est pas marqué, l'administration n'appelle pas l'acompte, et la production ne démarre pas.</li>
+      <li><b>Négocier la remise avant d'avoir montré la valeur.</b> L'onglet Argumentaire donne le ROI et les conditions — commencez par là.</li>
+      <li><b>Promettre une date ferme de livraison.</b> Le BC affiche une date <i>estimée</i> ; hors stock, comptez le délai de fabrication après l'acompte.</li>
+      <li><b>Laisser des fiches sans note.</b> Votre mémoire, votre remplaçant pendant vos congés et l'administration n'ont que vos notes pour continuer le travail.</li>
+    </ol>
+  </section>
+
+  <div class="foot">
+    <span>CRM Cascanics — une question ? Contactez l'administration depuis votre espace.</span>
+    <span>Cascanics, une marque de Twinsk Company Ltd</span>
+  </div>
+
+</div></div>
+</body>
+</html>
