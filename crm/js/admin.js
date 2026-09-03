@@ -143,6 +143,8 @@ function renderDetail(id) {
         <section class="panel">
           <h2>Paiements</h2>
           <table>
+            <tr><td>Machines HT${c.remisePct ? ` (remise ${c.remisePct} %)` : ""}</td><td class="num">${fmtEUR2(t.htMachines)}</td></tr>
+            ${t.transport ? `<tr><td>Transport &amp; livraison HT</td><td class="num">${fmtEUR2(t.transport)}</td></tr>` : ""}
             <tr><td><b>Total TTC</b></td><td class="num"><b>${fmtEUR2(t.ttc)}</b></td></tr>
             <tr><td>Acompte 50 %</td><td class="num">${etapeIndex(c.statut) >= etapeIndex("acompte_recu") && c.statut !== "annulee" ? `<span class="badge b-vert">Reçu</span>` : fmtEUR2(t.acompte)}</td></tr>
             <tr><td>Solde 50 %</td><td class="num">${etapeIndex(c.statut) >= etapeIndex("solde_recu") && c.statut !== "annulee" ? `<span class="badge b-vert">Reçu</span>` : fmtEUR2(t.solde)}</td></tr>
@@ -266,7 +268,7 @@ function renderReglages() {
         <div><label class="f" for="s-tva">TVA (%)</label><input id="s-tva" type="number" min="0" value="${s.tauxTVA}" /></div>
       </div>
       <div class="f-row">
-        <div><label class="f" for="s-com">Commission commerciaux (% du CA HT encaissé)</label><input id="s-com" type="number" min="0" step="0.5" value="${s.commissionPct}" /></div>
+        <div><label class="f" for="s-com">Commission commerciaux (% du HT machines encaissé, hors transport)</label><input id="s-com" type="number" min="0" step="0.5" value="${s.commissionPct}" /></div>
         <div><label class="f" for="s-delai">Délai de fabrication (jours)</label><input id="s-delai" type="number" min="1" value="${s.delaiFabricationJours}" /></div>
       </div>
       <div class="f-row">
@@ -285,7 +287,8 @@ function renderReglages() {
       <div class="d-actions" style="justify-content:flex-start">
         <button class="btn primary" id="save-settings">Enregistrer les réglages</button>
       </div>
-      <p class="hint">Le prix s'applique aux nouveaux bons de commande ; les BC existants gardent leur prix.</p>
+      <p class="hint">Le prix s'applique aux nouveaux bons de commande ; les BC existants gardent leur prix.
+        La commission se calcule sur le montant HT des machines après remise, <b>transport exclu</b>, et n'est acquise qu'une fois la commande soldée.</p>
     </section>`;
   document.getElementById("save-settings").addEventListener("click", async () => {
     const s = load().settings;

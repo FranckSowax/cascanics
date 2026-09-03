@@ -146,11 +146,18 @@
               <td class="num">${fmtEUR2(c.prixUnitaireHT)}</td>
               <td class="num">${fmtEUR2(t.brutHT)}</td>
             </tr>
+            ${t.transport ? `<tr>
+              <td><b>Transport &amp; livraison</b><br />
+                <span style="font-size:11.5px; color:var(--encre-2)">Machine emballée en caisse bois (1960 × 750 × 650 mm — 145 kg brut, 0,96 m³). Livraison sur site, déchargement à la charge du client.</span></td>
+              <td class="num">1</td>
+              <td class="num">${fmtEUR2(t.transport)}</td>
+              <td class="num">${fmtEUR2(t.transport)}</td>
+            </tr>` : ""}
           </tbody>
         </table>
 
         <table class="totaux">
-          ${c.remisePct ? `<tr><td>Remise commerciale (${c.remisePct} %)</td><td class="num">− ${fmtEUR2(t.brutHT - t.ht)}</td></tr>` : ""}
+          ${c.remisePct ? `<tr><td>Remise commerciale (${c.remisePct} %)</td><td class="num">− ${fmtEUR2(t.brutHT - t.htMachines)}</td></tr>` : ""}
           <tr><td>Total HT</td><td class="num">${fmtEUR2(t.ht)}</td></tr>
           <tr><td>TVA ${s.tauxTVA} %</td><td class="num">${fmtEUR2(t.tva)}</td></tr>
           <tr class="tt"><td>Total TTC</td><td class="num">${fmtEUR2(t.ttc)}</td></tr>

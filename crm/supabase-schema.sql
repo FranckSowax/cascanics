@@ -53,6 +53,8 @@ create table public.commandes (
   qty int not null default 1 check (qty > 0),
   prix_unitaire_ht numeric not null,
   remise_pct numeric not null default 0 check (remise_pct between 0 and 100),
+  -- Transport facturé au client, exclu de la base de commission.
+  transport_ht numeric not null default 0 check (transport_ht >= 0),
   statut text not null default 'brouillon'
     check (statut in ('brouillon','envoyee','signee','acompte_recu','en_production',
                       'controle_qualite','solde_recu','expediee','livree','annulee')),
@@ -164,3 +166,24 @@ begin
 end $$;
 
 grant execute on function public.creer_commercial(text, text, text, text, text) to authenticated;
+
+
+-- ============================================================
+-- Migration 2026-09 — transport facturable + commission à 10 %
+-- À jouer une seule fois sur une base déjà en service.
+-- (Sur une base neuve, tout est déjà dans les définitions ci-dessus.)
+-- ============================================================
+
+-- 1. Ligne de transport sur le bon de commande, exclue de la commission.
+alter table public.commandes
+  add column if not exists transport_ht numeric not null default 0;
+
+do $$ begin
+  alter table public.commandes add constraint commandes_transport_ht_check check (transport_ht >= 0);
+exception when duplicate_object then null;
+end $$;
+
+-- 2. Commission commerciaux portée à 10 % du HT machines encaissé, hors transport.
+update public.settings
+   set data = jsonb_set(data, '{commissionPct}', '10'::jsonb, true)
+ where id = 1;

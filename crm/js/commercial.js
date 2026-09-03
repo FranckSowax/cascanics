@@ -47,10 +47,10 @@ function renderDash() {
   const props = mesPropositions().filter((p) => p.statut === "proposee");
   main.innerHTML = `
     <div class="page-title"><h1>Bonjour, ${esc(me.nom.split(" ")[0])}</h1>
-      <span class="sub">Zone : <span class="tag-zone">${esc(me.zone)}</span> · Commission : ${s.commissionPct} % du CA HT encaissé</span></div>
+      <span class="sub">Zone : <span class="tag-zone">${esc(me.zone)}</span> · Commission : ${s.commissionPct} % du CA HT encaissé, hors transport</span></div>
     <div class="grid-kpi">
       ${kpi("CA encaissé (HT)", fmtEUR(k.caEncaisse), "eur", "commandes soldées")}
-      ${kpi("Commission acquise", fmtEUR(k.commission), "com", s.commissionPct + " % du CA encaissé")}
+      ${kpi("Commission acquise", fmtEUR(k.commission), "com", s.commissionPct + " % du HT machines encaissé")}
       ${kpi("CA signé (HT)", fmtEUR(k.caSigne), "", k.signees + " commande(s) signée(s)")}
       ${kpi("Pipeline (HT)", fmtEUR(k.pipeline), "", "BC en attente de signature")}
       ${kpi("Visites réalisées", k.visites, "", k.prospects + " prospects au total")}
@@ -197,7 +197,9 @@ function renderDetail(id) {
         <section class="panel">
           <h2>Montants</h2>
           <table>
-            <tr><td>Machine × ${c.qty}${c.remisePct ? ` (remise ${c.remisePct} %)` : ""}</td><td class="num">${fmtEUR2(t.ht)} HT</td></tr>
+            <tr><td>Machine × ${c.qty}${c.remisePct ? ` (remise ${c.remisePct} %)` : ""}</td><td class="num">${fmtEUR2(t.htMachines)} HT</td></tr>
+            ${t.transport ? `<tr><td>Transport &amp; livraison</td><td class="num">${fmtEUR2(t.transport)} HT</td></tr>` : ""}
+            <tr><td>Total HT</td><td class="num">${fmtEUR2(t.ht)}</td></tr>
             <tr><td>TVA ${load().settings.tauxTVA} %</td><td class="num">${fmtEUR2(t.tva)}</td></tr>
             <tr><td><b>Total TTC</b></td><td class="num"><b>${fmtEUR2(t.ttc)}</b></td></tr>
             <tr><td style="color:var(--ambre-flux)">Acompte 50 % à la commande</td><td class="num">${fmtEUR2(t.acompte)}</td></tr>
@@ -364,7 +366,7 @@ function renderArgumentaire() {
           <tr><td>Solde avant départ, après contrôle qualité</td><td class="num" style="color:var(--ambre-flux)">50 % — ${fmtEUR2(ttc / 2)}</td></tr>
           <tr><td>Fabrication hors stock</td><td class="num">${s.delaiFabricationJours} jours après acompte</td></tr>
           <tr><td>Machines en stock</td><td class="num">${s.stockMachines}</td></tr>
-          <tr><td>Votre commission</td><td class="num" style="color:var(--vert-valide)">${s.commissionPct} % du CA HT encaissé</td></tr>
+          <tr><td>Votre commission</td><td class="num" style="color:var(--vert-valide)">${s.commissionPct} % du CA HT encaissé, hors transport</td></tr>
         </table>
         <p class="hint">Remise possible jusqu'à 15 % depuis le bon de commande. Le placement en dépôt n'est pas encore ouvert à la vente.</p>
       </section>
@@ -415,15 +417,18 @@ function majTotauxDialog() {
   const s = load().settings;
   const qty = Math.max(1, +document.getElementById("c-qty").value || 1);
   const remise = Math.min(15, Math.max(0, +document.getElementById("c-remise").value || 0));
-  const ht = qty * s.prixMachineHT * (1 - remise / 100);
+  const transport = Math.max(0, +document.getElementById("c-transport").value || 0);
+  const htMachines = qty * s.prixMachineHT * (1 - remise / 100);
+  const ht = htMachines + transport;
   const ttc = ht * (1 + s.tauxTVA / 100);
   document.getElementById("c-stock-info").innerHTML = s.stockMachines >= qty
     ? `✔ ${s.stockMachines} machine(s) en stock — expédition rapide.`
     : `⚠ Stock insuffisant : fabrication sous <b>${s.delaiFabricationJours} jours</b> après acompte.`;
   document.getElementById("c-totaux").innerHTML =
-    `Total : <b>${fmtEUR2(ttc)} TTC</b> — Acompte 50 % : <b style="color:var(--ambre-flux)">${fmtEUR2(ttc / 2)}</b> · Solde 50 % avant départ : <b style="color:var(--ambre-flux)">${fmtEUR2(ttc / 2)}</b>`;
+    `Total : <b>${fmtEUR2(ttc)} TTC</b>${transport ? ` (dont ${fmtEUR2(transport)} HT de transport)` : ""} — Acompte 50 % : <b style="color:var(--ambre-flux)">${fmtEUR2(ttc / 2)}</b> · Solde 50 % avant départ : <b style="color:var(--ambre-flux)">${fmtEUR2(ttc / 2)}</b>
+     <br />Commission sur cette commande : <b style="color:var(--vert-valide)">${fmtEUR2(htMachines * s.commissionPct / 100)}</b> (${s.commissionPct} % du HT machines, hors transport)`;
 }
-["c-qty", "c-remise"].forEach((id) => document.getElementById(id).addEventListener("input", majTotauxDialog));
+["c-qty", "c-remise", "c-transport"].forEach((id) => document.getElementById(id).addEventListener("input", majTotauxDialog));
 document.getElementById("form-commande").addEventListener("submit", async (e) => {
   if (e.submitter && e.submitter.value === "cancel") return;
   const s = load().settings;
@@ -433,6 +438,7 @@ document.getElementById("form-commande").addEventListener("submit", async (e) =>
     commercialId: me.id,
     qty,
     remisePct: Math.min(15, Math.max(0, +document.getElementById("c-remise").value || 0)),
+    transportHT: Math.max(0, +document.getElementById("c-transport").value || 0),
     avecStock: s.stockMachines >= qty,
   }));
   if (cmd) {

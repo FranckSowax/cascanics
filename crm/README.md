@@ -27,7 +27,10 @@ Règles :
   l'admin valide paiements, production, contrôle qualité, expédition, livraison.
 - Offre **Achat machine** active (5 000 € HT, réglable) ; **Placement en dépôt** visible mais
   verrouillée (« Bientôt disponible »).
-- Commission = % (réglable, défaut 5 %) du CA HT **encaissé** (commandes soldées).
+- **Commission = 10 %** (réglable dans Réglages) du **montant HT des machines encaissé**, après remise
+  et **hors transport** — uniquement sur les commandes soldées.
+- Le **transport** est une ligne facturable du bon de commande (saisie à la création de la commande) :
+  il apparaît sur le BC et dans le total TTC, mais n'entre jamais dans la base de commission.
 
 ## Interfaces
 
@@ -58,6 +61,12 @@ pour répartir un même lot entre plusieurs commerciaux. Le `type` est normalis�
 Les doublons sont détectés sur entreprise + ville, sans tenir compte de la casse ni des accents.
 
 Le texte du prompt vit dans `js/prompt-prospection.js` (source unique, lue par le bouton).
+
+## Migration à jouer (base déjà en service)
+
+Le bas de `supabase-schema.sql` contient un bloc « Migration 2026-09 » : il ajoute la colonne
+`transport_ht` sur `commandes` et passe `commissionPct` à 10 dans les réglages. À exécuter une
+seule fois dans le SQL Editor de Supabase. Sur une base neuve, le schéma complet suffit.
 
 ## Architecture
 

@@ -52,7 +52,7 @@ export function currentUser() { return me; }
 
 /* Conversions snake_case (base) ↔ camelCase (UI) */
 const p2js = (r) => ({ id: r.id, commercialId: r.commercial_id, entreprise: r.entreprise, type: r.type, ville: r.ville, adresse: r.adresse, contact: r.contact, tel: r.tel, email: r.email, statut: r.statut, source: r.source, notes: r.notes || [], createdAt: r.created_at });
-const c2js = (r) => ({ id: r.id, numero: r.numero, clientId: r.client_id, commercialId: r.commercial_id, offre: r.offre, qty: r.qty, prixUnitaireHT: +r.prix_unitaire_ht, remisePct: +r.remise_pct, statut: r.statut, avecStock: r.avec_stock, historique: r.historique || [], createdAt: r.created_at });
+const c2js = (r) => ({ id: r.id, numero: r.numero, clientId: r.client_id, commercialId: r.commercial_id, offre: r.offre, qty: r.qty, prixUnitaireHT: +r.prix_unitaire_ht, remisePct: +r.remise_pct, transportHT: +(r.transport_ht || 0), statut: r.statut, avecStock: r.avec_stock, historique: r.historique || [], createdAt: r.created_at });
 const u2js = (r) => ({ id: r.id, role: r.role, nom: r.nom, zone: r.zone, tel: r.tel, email: r.email });
 const pr2js = (r) => ({ id: r.id, commercialId: r.commercial_id, zone: r.zone, cible: r.cible, message: r.message, statut: r.statut, createdAt: r.created_at });
 
@@ -109,10 +109,13 @@ export async function logout() {
 export function totaux(cmd) {
   const s = load().settings;
   const brutHT = cmd.qty * cmd.prixUnitaireHT;
-  const ht = brutHT * (1 - (cmd.remisePct || 0) / 100);
+  // Base commissionnable : machines après remise, hors transport.
+  const htMachines = brutHT * (1 - (cmd.remisePct || 0) / 100);
+  const transport = +(cmd.transportHT || 0);
+  const ht = htMachines + transport;
   const tva = ht * s.tauxTVA / 100;
   const ttc = ht + tva;
-  return { brutHT, ht, tva, ttc, acompte: ttc / 2, solde: ttc / 2 };
+  return { brutHT, htMachines, transport, ht, tva, ttc, acompte: ttc / 2, solde: ttc / 2 };
 }
 
 export function etapeIndex(statut) {
@@ -140,6 +143,8 @@ export function kpisCommercial(commercialId) {
   const encaissees = mesCmd.filter((c) => etapeIndex(c.statut) >= etapeIndex("solde_recu"));
   const signees = mesCmd.filter((c) => etapeIndex(c.statut) >= etapeIndex("signee"));
   const caEncaisse = encaissees.reduce((s, c) => s + totaux(c).ht, 0);
+  // La commission ne porte que sur les machines : HT après remise, transport exclu.
+  const baseCommission = encaissees.reduce((s, c) => s + totaux(c).htMachines, 0);
   const caSigne = signees.reduce((s, c) => s + totaux(c).ht, 0);
   const pipeline = mesCmd.filter((c) => etapeIndex(c.statut) < etapeIndex("signee")).reduce((s, c) => s + totaux(c).ht, 0);
   const visites = mesProspects.filter((p) => p.statut !== "a_visiter").length;
@@ -149,7 +154,8 @@ export function kpisCommercial(commercialId) {
     devis: mesCmd.length,
     signees: signees.length,
     caSigne, caEncaisse, pipeline,
-    commission: caEncaisse * d.settings.commissionPct / 100,
+    baseCommission,
+    commission: baseCommission * d.settings.commissionPct / 100,
     conversion: visites ? Math.round((signees.length / visites) * 100) : 0,
   };
 }
@@ -177,12 +183,13 @@ export async function patchProspect(id, patch) {
 }
 
 /* ---------- Mutations : commandes ---------- */
-export async function creerCommande({ clientId, commercialId, qty, remisePct, avecStock }) {
+export async function creerCommande({ clientId, commercialId, qty, remisePct, transportHT, avecStock }) {
   const d = load();
   const historique = [{ statut: "brouillon", d: new Date().toISOString() }];
   const { data, error } = await supa.from("commandes").insert({
     client_id: clientId, commercial_id: commercialId, qty,
     prix_unitaire_ht: d.settings.prixMachineHT, remise_pct: remisePct || 0,
+    transport_ht: Math.max(0, +transportHT || 0),
     avec_stock: !!avecStock, historique,
   }).select().single();
   if (error) fail(error, "Création du bon de commande");

@@ -81,7 +81,12 @@
           <label class="f" for="c-remise">Remise (%)</label>
           <input id="c-remise" type="number" min="0" max="15" value="0" />
         </div>
+        <div>
+          <label class="f" for="c-transport">Transport (€ HT)</label>
+          <input id="c-transport" type="number" min="0" step="10" value="0" />
+        </div>
       </div>
+      <p class="hint">Le transport est facturé au client mais exclu de la base de commission.</p>
       <p class="hint" id="c-stock-info"></p>
       <p class="hint" id="c-totaux" style="margin-top:10px"></p>
       <div class="d-actions">
